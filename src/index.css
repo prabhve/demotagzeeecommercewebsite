@@ -1,0 +1,66 @@
+@import "tailwindcss";
+
+@layer base {
+  body {
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    color: #111827;
+    background-color: #ffffff;
+  }
+
+  h1, h2, h3, h4, .font-serif {
+    font-family: 'Outfit', 'Cinzel', 'Noto Sans', system-ui, serif;
+  }
+
+  .font-mono {
+    font-family: 'Noto Sans Mono', 'Courier New', monospace;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.18s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Print styles for Shipping Labels, Invoices, and Proforma documents */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+
+  .printable-label,
+  .printable-label *,
+  .printable-invoice,
+  .printable-invoice *,
+  .printable-proforma,
+  .printable-proforma * {
+    visibility: visible;
+  }
+
+  .printable-label,
+  .printable-invoice,
+  .printable-proforma {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    margin: 0;
+    padding: 16px;
+    background: white !important;
+    box-shadow: none !important;
+    border: none !important;
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "name": "TAG ZEE — Moradabad Metal Handicrafts & Luxury Decor",
+  "description": "B2C Retail & B2B Wholesale Export Portal for TAG ZEE, master artisans of Moradabad brassware, copper craft, and luxury royal home decor.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
