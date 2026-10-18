@@ -1,6 +1,5 @@
-import React from 'react';
-import { ShoppingBag, Search, Sparkles, Building2, Store, ShieldCheck, Phone, Check } from 'lucide-react';
-import type { Currency } from '../types/index.ts';
+import { ShoppingBag, Search, Sparkles, Building2, Store, ShieldCheck, Phone, Check, Heart, User as UserIcon } from 'lucide-react';
+import type { Currency, User } from '../types/index.ts';
 import { BRAND_INFO } from '../data/catalog.ts';
 
 interface NavbarProps {
@@ -13,6 +12,10 @@ interface NavbarProps {
   searchQuery: string;
   setSearchQuery: (q: string) => void;
   onSelectProduct?: (id: string) => void;
+  currentUser?: User | null;
+  onOpenAuthModal?: () => void;
+  onOpenProfile?: () => void;
+  wishlistCount?: number;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -24,6 +27,10 @@ export const Navbar: React.FC<NavbarProps> = ({
   openCart,
   searchQuery,
   setSearchQuery,
+  currentUser = null,
+  onOpenAuthModal = () => {},
+  onOpenProfile = () => {},
+  wishlistCount = 0,
 }) => {
   return (
     <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-[#D4AF37]/25 shadow-xs">
@@ -201,6 +208,46 @@ export const Navbar: React.FC<NavbarProps> = ({
               Order Management
             </button>
           </nav>
+
+          {/* Wishlist Button */}
+          <button
+            onClick={onOpenProfile}
+            aria-label="View Saved Items"
+            className="relative p-2.5 rounded-lg border border-slate-200 hover:border-[#D4AF37] bg-white transition-all text-slate-700 hover:text-rose-600 flex items-center gap-1.5 cursor-pointer"
+            title="Saved Items / Wishlist"
+          >
+            <Heart className="w-4 h-4 text-rose-500" />
+            <span className="hidden xl:inline text-xs font-semibold">Saved</span>
+            {wishlistCount > 0 && (
+              <span className="inline-flex items-center justify-center px-1.5 py-0.2 text-[10px] font-bold text-white bg-rose-600 rounded-full">
+                {wishlistCount}
+              </span>
+            )}
+          </button>
+
+          {/* User Account / Sign In Button */}
+          {currentUser ? (
+            <button
+              onClick={onOpenProfile}
+              className="p-1.5 sm:px-2.5 sm:py-1.5 rounded-lg border border-[#D4AF37]/50 bg-radial from-[#FFFDF8] to-[#F5EFE0] hover:border-[#D4AF37] text-slate-900 flex items-center gap-2 cursor-pointer shadow-xs"
+              title="Manage Profile & Past Orders"
+            >
+              <div className="w-6 h-6 rounded-full bg-[#111827] text-[#D4AF37] text-[10px] font-bold flex items-center justify-center font-serif">
+                {currentUser.name.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase()}
+              </div>
+              <span className="hidden sm:inline text-xs font-bold line-clamp-1 max-w-[100px]">
+                {currentUser.name.split(' ')[0]}
+              </span>
+            </button>
+          ) : (
+            <button
+              onClick={onOpenAuthModal}
+              className="px-3 py-2 rounded-lg border border-slate-200 hover:border-[#D4AF37] bg-white text-slate-800 flex items-center gap-1.5 text-xs font-semibold cursor-pointer"
+            >
+              <UserIcon className="w-4 h-4 text-[#9E7A1C]" />
+              <span className="hidden sm:inline">Sign In</span>
+            </button>
+          )}
 
           {/* Cart Icon with Live Counter */}
           <button

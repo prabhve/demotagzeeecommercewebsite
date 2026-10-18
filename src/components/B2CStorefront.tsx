@@ -14,6 +14,7 @@ import {
   Mail,
   MapPin,
   ExternalLink,
+  Heart,
 } from 'lucide-react';
 import type { Currency, Product } from '../types/index.ts';
 import { BRAND_INFO } from '../data/catalog.ts';
@@ -27,6 +28,8 @@ interface B2CStorefrontProps {
   onSelectProduct: (product: Product) => void;
   onSwitchToB2B: () => void;
   searchQuery: string;
+  savedItemIds?: string[];
+  onToggleWishlist?: (productId: string) => void;
 }
 
 export const B2CStorefront: React.FC<B2CStorefrontProps> = ({
@@ -36,6 +39,8 @@ export const B2CStorefront: React.FC<B2CStorefrontProps> = ({
   onSelectProduct,
   onSwitchToB2B,
   searchQuery,
+  savedItemIds = [],
+  onToggleWishlist,
 }) => {
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [heroZoom, setHeroZoom] = useState(false);
@@ -266,6 +271,26 @@ export const B2CStorefront: React.FC<B2CStorefrontProps> = ({
                       <div className="absolute top-3 right-3 bg-red-600 text-white text-[11px] font-bold px-2 py-0.5 rounded-md shadow-xs">
                         {discountPercent}% OFF
                       </div>
+                    )}
+
+                    {/* Wishlist Toggle Button */}
+                    {onToggleWishlist && (
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onToggleWishlist(product.id);
+                        }}
+                        aria-label="Toggle Wishlist"
+                        className="absolute bottom-2 right-3 z-10 p-1.5 rounded-full bg-white/90 shadow-xs hover:shadow-md text-slate-700 hover:text-rose-600 transition-all active:scale-95 cursor-pointer border border-slate-200"
+                        title={savedItemIds.includes(product.id) ? 'Saved' : 'Save Piece'}
+                      >
+                        <Heart
+                          className={`w-3.5 h-3.5 ${
+                            savedItemIds.includes(product.id) ? 'text-rose-600 fill-rose-600' : 'text-slate-600'
+                          }`}
+                        />
+                      </button>
                     )}
 
                     {/* Purity Floating Pill */}

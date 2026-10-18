@@ -14,9 +14,10 @@ import {
   Share2,
   Check,
 } from 'lucide-react';
-import type { Currency, Product } from '../types/index.ts';
+import type { Currency, Product, Review, User } from '../types/index.ts';
 import { formatCurrency, calculateDiscountPercent, estimatePincodeDelivery } from '../utils/pricing.ts';
 import { ProductArtwork } from './ProductArtwork.tsx';
+import { ProductReviewsSection } from './ProductReviewsSection.tsx';
 
 interface ProductDetailModalProps {
   product: Product | null;
@@ -24,6 +25,11 @@ interface ProductDetailModalProps {
   onClose: () => void;
   onAddToCart: (product: Product, quantity: number) => void;
   onOpenB2BTabWithProduct?: (product: Product) => void;
+  reviews?: Review[];
+  currentUser?: User | null;
+  onAddReview?: (newReview: Omit<Review, 'id' | 'date' | 'helpfulCount'>) => void;
+  isWishlisted?: boolean;
+  onToggleWishlist?: (productId: string) => void;
 }
 
 export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
@@ -32,6 +38,11 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
   onClose,
   onAddToCart,
   onOpenB2BTabWithProduct,
+  reviews = [],
+  currentUser = null,
+  onAddReview = () => {},
+  isWishlisted = false,
+  onToggleWishlist,
 }) => {
   const [quantity, setQuantity] = useState(1);
   const [isZoomed, setIsZoomed] = useState(false);
@@ -140,9 +151,23 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
                     <span className="font-semibold text-slate-800">{product.rating}</span>
                     <span className="text-slate-400">({product.reviewCount} reviews)</span>
                   </div>
+                  {onToggleWishlist && (
+                    <button
+                      onClick={() => onToggleWishlist(product.id)}
+                      className={`p-1 transition-colors cursor-pointer ${
+                        isWishlisted ? 'text-rose-500 fill-current' : 'text-slate-400 hover:text-rose-500'
+                      }`}
+                      title={isWishlisted ? 'Remove from Wishlist' : 'Save to Wishlist'}
+                      aria-label="Wishlist"
+                    >
+                      <svg className="w-4 h-4" viewBox="0 0 24 24" fill={isWishlisted ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2">
+                        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+                      </svg>
+                    </button>
+                  )}
                   <button
                     onClick={handleShare}
-                    className="text-slate-400 hover:text-slate-700 transition-colors p-1"
+                    className="text-slate-400 hover:text-slate-700 transition-colors p-1 cursor-pointer"
                     title="Copy Link"
                   >
                     {copiedLink ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Share2 className="w-3.5 h-3.5" />}
@@ -281,6 +306,16 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
               </div>
             </div>
           </div>
+        </div>
+
+        {/* Full Customer Reviews & Ratings Section */}
+        <div className="px-6 pb-8 border-t border-slate-200/80 bg-slate-50/40">
+          <ProductReviewsSection
+            productId={product.id}
+            reviews={reviews}
+            currentUser={currentUser}
+            onAddReview={onAddReview}
+          />
         </div>
       </div>
     </div>

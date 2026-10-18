@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import type { CartItem, Currency, Order, Product, RfqCalculation } from './types/index.ts';
-import { INITIAL_PRODUCTS, INITIAL_ORDERS } from './data/catalog.ts';
+import type { CartItem, Currency, Order, Product, RfqCalculation, Review, User } from './types/index.ts';
+import { INITIAL_PRODUCTS, INITIAL_ORDERS, INITIAL_REVIEWS, INITIAL_USER } from './data/catalog.ts';
 import { Navbar } from './components/Navbar.tsx';
 import { B2CStorefront } from './components/B2CStorefront.tsx';
 import { B2BExportPortal } from './components/B2BExportPortal.tsx';
@@ -10,6 +10,10 @@ import { CartDrawer } from './components/CartDrawer.tsx';
 import { ShippingLabelModal } from './components/ShippingLabelModal.tsx';
 import { TaxInvoiceModal } from './components/TaxInvoiceModal.tsx';
 import { ProformaModal } from './components/ProformaModal.tsx';
+import { AuthModal } from './components/AuthModal.tsx';
+import { UserProfileDrawer } from './components/UserProfileDrawer.tsx';
+import { ChatSupportWidget } from './components/ChatSupportWidget.tsx';
+import { toggleWishlistItem } from './utils/authAndReviews.ts';
 import { CheckCircle2, FileText, Barcode, ArrowRight, X } from 'lucide-react';
 
 export default function App() {
@@ -20,6 +24,12 @@ export default function App() {
   // Application Data States
   const [products, setProducts] = useState<Product[]>(INITIAL_PRODUCTS);
   const [orders, setOrders] = useState<Order[]>(INITIAL_ORDERS);
+  const [reviews, setReviews] = useState<Review[]>(INITIAL_REVIEWS);
+
+  // Authenticated User State (defaults to Ananya Deshmukh for instantaneous testing and exploration)
+  const [currentUser, setCurrentUser] = useState<User | null>(INITIAL_USER);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [isProfileDrawerOpen, setIsProfileDrawerOpen] = useState(false);
 
   // Cart State (Initialized with 1 Royal Urli item for instant interactive exploration)
   const [cart, setCart] = useState<CartItem[]>([
@@ -76,6 +86,64 @@ export default function App() {
     setCart((prev) => prev.filter((item) => item.product.id !== productId));
   };
 
+  // Wishlist / Saved items toggle
+  const handleToggleWishlist = (productId: string) => {
+    if (!currentUser) {
+      setIsAuthModalOpen(true);
+      return;
+    }
+    const { updatedItemIds } = toggleWishlistItem(currentUser.savedItemIds, productId);
+    setCurrentUser({
+      ...currentUser,
+      savedItemIds: updatedItemIds,
+    });
+  };
+
+  // Add Product Review & live rating calculation
+  const handleAddReview = (newReviewData: Omit<Review, 'id' | 'date' | 'helpfulCount'>) => {
+    const newReview: Review = {
+      ...newReviewData,
+      id: `rev-${Date.now()}`,
+      date: new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
+      helpfulCount: 0,
+    };
+
+    setReviews((prev) => [newReview, ...prev]);
+
+    // Update target product's average rating and reviewCount
+    setProducts((prev) =>
+      prev.map((prod) => {
+        if (prod.id === newReviewData.productId) {
+          const productReviews = [newReview, ...reviews.filter((r) => r.productId === prod.id)];
+          const avg =
+            Math.round(
+              (productReviews.reduce((sum, r) => sum + r.rating, 0) / productReviews.length) * 10
+            ) / 10;
+          return {
+            ...prod,
+            rating: avg,
+            reviewCount: productReviews.length,
+          };
+        }
+        return prod;
+      })
+    );
+
+    // If modal is open, also sync the selectedProduct state
+    if (selectedProductForModal && selectedProductForModal.id === newReviewData.productId) {
+      const updatedReviews = [newReview, ...reviews.filter((r) => r.productId === selectedProductForModal.id)];
+      const avg =
+        Math.round(
+          (updatedReviews.reduce((sum, r) => sum + r.rating, 0) / updatedReviews.length) * 10
+        ) / 10;
+      setSelectedProductForModal({
+        ...selectedProductForModal,
+        rating: avg,
+        reviewCount: updatedReviews.length,
+      });
+    }
+  };
+
   // Checkout submission
   const handleCheckoutSuccess = (newOrder: Order) => {
     setOrders((prev) => [newOrder, ...prev]);
@@ -128,7 +196,7 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-white text-slate-900 flex flex-col font-sans selection:bg-[#D4AF37]/30 selection:text-slate-950">
-      {/* Sticky Navbar with 3-Way Live Workspace Switcher */}
+      {/* Sticky Navbar with 3-Way Live Workspace Switcher & User Account / Wishlist */}
       <Navbar
         activeTab={activeTab}
         setActiveTab={setActiveTab}
@@ -138,6 +206,16 @@ export default function App() {
         openCart={() => setIsCartOpen(true)}
         searchQuery={searchQuery}
         setSearchQuery={setSearchQuery}
+        currentUser={currentUser}
+        onOpenAuthModal={() => setIsAuthModalOpen(true)}
+        onOpenProfile={() => {
+          if (currentUser) {
+            setIsProfileDrawerOpen(true);
+          } else {
+            setIsAuthModalOpen(true);
+          }
+        }}
+        wishlistCount={currentUser ? currentUser.savedItemIds.length : 0}
       />
 
       {/* Recent Order Toast Notification Bar */}
@@ -201,6 +279,8 @@ export default function App() {
             onSelectProduct={(product) => setSelectedProductForModal(product)}
             onSwitchToB2B={() => setActiveTab('b2b')}
             searchQuery={searchQuery}
+            savedItemIds={currentUser?.savedItemIds || []}
+            onToggleWishlist={handleToggleWishlist}
           />
         )}
 
@@ -228,7 +308,7 @@ export default function App() {
         )}
       </main>
 
-      {/* Modals & Drawers */}
+      {/* Product Detail Modal (PDP) with Reviews & Wishlist */}
       {selectedProductForModal && (
         <ProductDetailModal
           product={selectedProductForModal}
@@ -239,9 +319,15 @@ export default function App() {
             setActiveTab('b2b');
             setSelectedProductForModal(product);
           }}
+          reviews={reviews.filter((r) => r.productId === selectedProductForModal.id)}
+          currentUser={currentUser}
+          onAddReview={handleAddReview}
+          isWishlisted={currentUser ? currentUser.savedItemIds.includes(selectedProductForModal.id) : false}
+          onToggleWishlist={handleToggleWishlist}
         />
       )}
 
+      {/* Cart Slide-Over Drawer */}
       <CartDrawer
         isOpen={isCartOpen}
         onClose={() => setIsCartOpen(false)}
@@ -252,6 +338,49 @@ export default function App() {
         onCheckoutSuccess={handleCheckoutSuccess}
       />
 
+      {/* User Authentication Modal (Login / Register / Quick Switch) */}
+      <AuthModal
+        isOpen={isAuthModalOpen}
+        onClose={() => setIsAuthModalOpen(false)}
+        onAuthSuccess={(user) => {
+          setCurrentUser(user);
+          setIsAuthModalOpen(false);
+        }}
+      />
+
+      {/* User Profile Drawer (Profile, Past Orders with Invoices & AWB, Saved Wishlist Items) */}
+      <UserProfileDrawer
+        isOpen={isProfileDrawerOpen}
+        onClose={() => setIsProfileDrawerOpen(false)}
+        user={currentUser}
+        onUpdateUser={(updated) => setCurrentUser(updated)}
+        onLogout={() => {
+          setCurrentUser(null);
+          setIsProfileDrawerOpen(false);
+        }}
+        orders={orders}
+        products={products}
+        currency={currency}
+        onAddToCart={handleAddToCart}
+        onRemoveFromWishlist={handleToggleWishlist}
+        onViewInvoice={(order) => {
+          setIsProfileDrawerOpen(false);
+          setActiveTaxInvoiceOrder(order);
+        }}
+        onViewShippingLabel={(order) => {
+          setIsProfileDrawerOpen(false);
+          setActiveShippingLabelOrder(order);
+        }}
+        onOpenProductModal={(product) => {
+          setIsProfileDrawerOpen(false);
+          setSelectedProductForModal(product);
+        }}
+      />
+
+      {/* Real-Time Atelier Concierge Chat Support Widget */}
+      <ChatSupportWidget currentUserName={currentUser?.name} />
+
+      {/* Modals for Document Generation */}
       {activeShippingLabelOrder && (
         <ShippingLabelModal
           order={activeShippingLabelOrder}

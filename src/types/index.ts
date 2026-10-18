@@ -98,3 +98,48 @@ export interface Order {
   gstin?: string;
   companyName?: string;
 }
+
+export interface Review {
+  id: string;
+  productId: string;
+  authorName: string;
+  authorEmail: string;
+  rating: number; // 1 to 5
+  title: string;
+  comment: string;
+  date: string;
+  verifiedPurchase: boolean;
+  helpfulCount: number;
+}
+
+export interface User {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  shippingAddress: string;
+  city: string;
+  state: string;
+  pincode: string;
+  companyName?: string;
+  gstin?: string;
+  savedItemIds: string[]; // Wishlist product IDs
+  createdAt: string;
+}
+
+export interface ChatMessage {
+  id: string;
+  sender: 'user' | 'agent' | 'system';
+  senderName: string;
+  text: string;
+  timestamp: string;
+  quickAction?: string;
+}
+
+export interface AgentInfo {
+  name: string;
+  role: string;
+  avatarInitials: string;
+  status: 'Online' | 'In Foundry Workshop' | 'Away';
+  typicalResponseTime: string;
+}
