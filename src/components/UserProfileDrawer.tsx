@@ -97,19 +97,19 @@ export const UserProfileDrawer: React.FC<UserProfileDrawerProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 overflow-hidden bg-slate-900/60 backdrop-blur-xs flex justify-end animate-fadeIn">
-      <div className="w-full max-w-lg bg-white h-full shadow-2xl flex flex-col justify-between border-l border-[#D4AF37]/40 relative">
+      <div className="w-full max-w-lg bg-white h-full shadow-2xl flex flex-col justify-between border-l border-[#C5A059]/40 relative">
         {/* Drawer Header */}
-        <div className="p-5 border-b border-slate-200 bg-radial from-[#FFFDF8] via-[#FAF6ED] to-[#F5EFE0]">
+        <div className="p-6 border-b border-slate-200/80 bg-gradient-to-b from-[#FFFFFF] to-[#FBF9F5]">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-11 h-11 rounded-full bg-[#111827] text-[#D4AF37] border border-[#D4AF37] flex items-center justify-center font-bold font-serif text-sm shadow-xs">
+            <div className="flex items-center gap-3.5">
+              <div className="w-12 h-12 rounded-full bg-slate-950 text-[#DFBA73] border border-[#C5A059]/60 flex items-center justify-center font-serif text-sm shadow-[0_2px_8px_rgba(0,0,0,0.06)]">
                 {user.name.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase()}
               </div>
               <div>
-                <h3 className="font-bold text-slate-900 text-sm font-serif">{user.name}</h3>
-                <span className="text-[11px] text-slate-500 font-mono block">{user.email}</span>
-                <span className="text-[10px] text-amber-800 font-semibold">
-                  Member since {user.createdAt}
+                <h3 className="font-serif text-xl font-normal text-slate-950">{user.name}</h3>
+                <span className="text-xs text-slate-500 font-light block">{user.email}</span>
+                <span className="text-[10px] tracking-wider uppercase text-[#846328] font-semibold">
+                  Patron since {user.createdAt}
                 </span>
               </div>
             </div>
@@ -117,7 +117,7 @@ export const UserProfileDrawer: React.FC<UserProfileDrawerProps> = ({
             <div className="flex items-center gap-2">
               <button
                 onClick={onLogout}
-                className="p-1.5 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 transition-colors"
+                className="p-2 rounded-full text-slate-400 hover:text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
                 title="Sign Out"
               >
                 <LogOut className="w-4 h-4" />
@@ -125,49 +125,49 @@ export const UserProfileDrawer: React.FC<UserProfileDrawerProps> = ({
               <button
                 onClick={onClose}
                 aria-label="Close user profile drawer"
-                className="p-1.5 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
+                className="p-2 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
               >
-                <X className="w-5 h-5" />
+                <X className="w-4 h-4" />
               </button>
             </div>
           </div>
 
-          {/* 3 Navigation Tabs */}
-          <div className="flex items-center gap-1 mt-4 bg-white/80 p-1 rounded-lg border border-slate-200 text-xs font-semibold">
+          {/* 3 Navigation Tabs: Frosted Capsule */}
+          <div className="flex items-center gap-1 mt-5 bg-white p-1 rounded-full border border-slate-200/80 text-xs font-medium shadow-[0_2px_8px_rgba(0,0,0,0.02)]">
             <button
               onClick={() => setActiveTab('orders')}
-              className={`flex-1 py-1.5 px-2 rounded-md flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+              className={`flex-1 py-1.5 px-3 rounded-full flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
                 activeTab === 'orders'
-                  ? 'bg-slate-900 text-white shadow-xs'
-                  : 'text-slate-600 hover:text-slate-900'
+                  ? 'bg-slate-950 text-[#DFBA73] shadow-xs'
+                  : 'text-slate-600 hover:text-slate-950'
               }`}
             >
-              <Package className="w-3.5 h-3.5 text-[#D4AF37]" />
-              <span>Past Orders ({userOrders.length})</span>
+              <Package className="w-3.5 h-3.5" />
+              <span>Orders ({userOrders.length})</span>
             </button>
 
             <button
               onClick={() => setActiveTab('wishlist')}
-              className={`flex-1 py-1.5 px-2 rounded-md flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+              className={`flex-1 py-1.5 px-3 rounded-full flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
                 activeTab === 'wishlist'
-                  ? 'bg-slate-900 text-white shadow-xs'
-                  : 'text-slate-600 hover:text-slate-900'
+                  ? 'bg-slate-950 text-[#DFBA73] shadow-xs'
+                  : 'text-slate-600 hover:text-slate-950'
               }`}
             >
               <Heart className="w-3.5 h-3.5 text-rose-500" />
-              <span>Saved Items ({user.savedItemIds.length})</span>
+              <span>Saved ({user.savedItemIds.length})</span>
             </button>
 
             <button
               onClick={() => setActiveTab('profile')}
-              className={`flex-1 py-1.5 px-2 rounded-md flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+              className={`flex-1 py-1.5 px-3 rounded-full flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
                 activeTab === 'profile'
-                  ? 'bg-slate-900 text-white shadow-xs'
-                  : 'text-slate-600 hover:text-slate-900'
+                  ? 'bg-slate-950 text-[#DFBA73] shadow-xs'
+                  : 'text-slate-600 hover:text-slate-950'
               }`}
             >
-              <UserIcon className="w-3.5 h-3.5 text-[#D4AF37]" />
-              <span>Shipping &amp; GST</span>
+              <UserIcon className="w-3.5 h-3.5" />
+              <span>Profile</span>
             </button>
           </div>
         </div>
@@ -238,7 +238,7 @@ export const UserProfileDrawer: React.FC<UserProfileDrawerProps> = ({
                         onClick={() => onViewInvoice(ord)}
                         className="flex-1 py-1.5 px-2 bg-slate-900 hover:bg-slate-800 text-white rounded text-[11px] font-semibold flex items-center justify-center gap-1 cursor-pointer"
                       >
-                        <FileText className="w-3.5 h-3.5 text-[#D4AF37]" />
+                        <FileText className="w-3.5 h-3.5 text-[#C5A059]" />
                         <span>View GST Invoice</span>
                       </button>
 
@@ -303,7 +303,7 @@ export const UserProfileDrawer: React.FC<UserProfileDrawerProps> = ({
                     <div className="flex flex-col gap-1 shrink-0">
                       <button
                         onClick={() => onAddToCart(prod, 1)}
-                        className="px-2.5 py-1.5 bg-[#D4AF37] hover:bg-amber-400 text-slate-950 rounded text-[11px] font-bold flex items-center gap-1 shadow-xs cursor-pointer"
+                        className="px-2.5 py-1.5 bg-[#C5A059] hover:bg-amber-400 text-slate-950 rounded text-[11px] font-bold flex items-center gap-1 shadow-xs cursor-pointer"
                       >
                         <ShoppingBag className="w-3 h-3" />
                         <span>Add</span>
@@ -333,7 +333,7 @@ export const UserProfileDrawer: React.FC<UserProfileDrawerProps> = ({
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="w-full px-3 py-1.5 border border-slate-300 rounded-lg focus:outline-none focus:border-[#D4AF37]"
+                  className="w-full px-3 py-1.5 border border-slate-300 rounded-lg focus:outline-none focus:border-[#C5A059]"
                   required
                 />
               </div>
@@ -346,7 +346,7 @@ export const UserProfileDrawer: React.FC<UserProfileDrawerProps> = ({
                   type="tel"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
-                  className="w-full px-3 py-1.5 border border-slate-300 rounded-lg focus:outline-none focus:border-[#D4AF37]"
+                  className="w-full px-3 py-1.5 border border-slate-300 rounded-lg focus:outline-none focus:border-[#C5A059]"
                   required
                 />
               </div>
@@ -359,7 +359,7 @@ export const UserProfileDrawer: React.FC<UserProfileDrawerProps> = ({
                   rows={2}
                   value={address}
                   onChange={(e) => setAddress(e.target.value)}
-                  className="w-full px-3 py-1.5 border border-slate-300 rounded-lg focus:outline-none focus:border-[#D4AF37]"
+                  className="w-full px-3 py-1.5 border border-slate-300 rounded-lg focus:outline-none focus:border-[#C5A059]"
                   required
                 />
               </div>
@@ -371,7 +371,7 @@ export const UserProfileDrawer: React.FC<UserProfileDrawerProps> = ({
                     type="text"
                     value={city}
                     onChange={(e) => setCity(e.target.value)}
-                    className="w-full px-2.5 py-1.5 border border-slate-300 rounded-lg focus:outline-none focus:border-[#D4AF37]"
+                    className="w-full px-2.5 py-1.5 border border-slate-300 rounded-lg focus:outline-none focus:border-[#C5A059]"
                     required
                   />
                 </div>
@@ -381,7 +381,7 @@ export const UserProfileDrawer: React.FC<UserProfileDrawerProps> = ({
                     type="text"
                     value={state}
                     onChange={(e) => setState(e.target.value)}
-                    className="w-full px-2.5 py-1.5 border border-slate-300 rounded-lg focus:outline-none focus:border-[#D4AF37]"
+                    className="w-full px-2.5 py-1.5 border border-slate-300 rounded-lg focus:outline-none focus:border-[#C5A059]"
                     required
                   />
                 </div>
@@ -392,7 +392,7 @@ export const UserProfileDrawer: React.FC<UserProfileDrawerProps> = ({
                     maxLength={6}
                     value={pincode}
                     onChange={(e) => setPincode(e.target.value)}
-                    className="w-full px-2.5 py-1.5 border border-slate-300 rounded-lg font-mono focus:outline-none focus:border-[#D4AF37]"
+                    className="w-full px-2.5 py-1.5 border border-slate-300 rounded-lg font-mono focus:outline-none focus:border-[#C5A059]"
                     required
                   />
                 </div>
@@ -432,7 +432,7 @@ export const UserProfileDrawer: React.FC<UserProfileDrawerProps> = ({
                 type="submit"
                 className="w-full py-2.5 bg-slate-900 hover:bg-slate-800 text-white font-bold rounded-lg shadow-xs flex items-center justify-center gap-2 cursor-pointer mt-2"
               >
-                <Save className="w-4 h-4 text-[#D4AF37]" />
+                <Save className="w-4 h-4 text-[#C5A059]" />
                 <span>Save Profile Changes</span>
               </button>
             </form>

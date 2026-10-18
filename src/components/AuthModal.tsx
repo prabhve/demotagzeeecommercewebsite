@@ -131,27 +131,27 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuthSuc
   };
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/70 backdrop-blur-xs flex items-center justify-center p-3 sm:p-6 animate-fadeIn">
-      <div className="relative bg-white rounded-2xl max-w-md w-full shadow-2xl border border-[#D4AF37]/50 overflow-hidden text-slate-900 flex flex-col">
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4 sm:p-8 animate-fadeIn">
+      <div className="relative bg-white rounded-3xl max-w-md w-full shadow-[0_25px_60px_rgba(0,0,0,0.18)] border border-slate-200/80 overflow-hidden text-slate-900 flex flex-col">
         {/* Modal Top Header */}
-        <div className="bg-[#111827] text-white p-5 border-b border-[#D4AF37]/30 flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-full bg-[#D4AF37] text-slate-950 font-bold flex items-center justify-center font-serif text-xs">
+        <div className="bg-[#0F172A] text-white p-6 border-b border-slate-800 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-slate-900 text-[#DFBA73] font-serif flex items-center justify-center text-xs border border-[#C5A059]/40 shadow-xs">
               TZ
             </div>
             <div>
-              <span className="font-serif font-bold text-sm text-white block">TAG ZEE Atelier Access</span>
-              <span className="text-[10px] text-[#D4AF37] font-semibold uppercase tracking-wider block">
-                Customer &amp; Wholesale Buyer Account
+              <span className="font-serif text-lg font-normal text-white block">TAG ZEE Atelier Access</span>
+              <span className="text-[10px] tracking-wider uppercase text-[#DFBA73] font-medium block">
+                Patron &amp; Wholesale Buyer Account
               </span>
             </div>
           </div>
           <button
             onClick={onClose}
             aria-label="Close authentication modal"
-            className="p-1 rounded text-slate-400 hover:text-white transition-colors cursor-pointer"
+            className="p-1.5 rounded-full text-slate-400 hover:text-white transition-colors cursor-pointer"
           >
-            <X className="w-5 h-5" />
+            <X className="w-4 h-4" />
           </button>
         </div>
 
@@ -164,7 +164,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuthSuc
             }}
             className={`flex-1 py-3 text-center transition-colors cursor-pointer ${
               mode === 'login'
-                ? 'bg-white text-slate-950 border-b-2 border-[#D4AF37] font-bold shadow-xs'
+                ? 'bg-white text-slate-950 border-b-2 border-[#C5A059] font-bold shadow-xs'
                 : 'text-slate-500 hover:text-slate-800'
             }`}
           >
@@ -177,7 +177,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuthSuc
             }}
             className={`flex-1 py-3 text-center transition-colors cursor-pointer ${
               mode === 'register'
-                ? 'bg-white text-slate-950 border-b-2 border-[#D4AF37] font-bold shadow-xs'
+                ? 'bg-white text-slate-950 border-b-2 border-[#C5A059] font-bold shadow-xs'
                 : 'text-slate-500 hover:text-slate-800'
             }`}
           >
@@ -206,7 +206,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuthSuc
                     value={loginEmail}
                     onChange={(e) => setLoginEmail(e.target.value)}
                     placeholder="email@example.com"
-                    className="w-full pl-9 pr-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:border-[#D4AF37]"
+                    className="w-full pl-9 pr-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:border-[#C5A059]"
                     required
                   />
                 </div>
@@ -230,7 +230,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuthSuc
                     value={loginPassword}
                     onChange={(e) => setLoginPassword(e.target.value)}
                     placeholder="••••••••"
-                    className="w-full pl-9 pr-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:border-[#D4AF37]"
+                    className="w-full pl-9 pr-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:border-[#C5A059]"
                     required
                   />
                 </div>
@@ -283,7 +283,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuthSuc
                     value={regName}
                     onChange={(e) => setRegName(e.target.value)}
                     placeholder="Full Name"
-                    className="w-full pl-9 pr-3 py-1.5 border border-slate-300 rounded-lg focus:outline-none focus:border-[#D4AF37]"
+                    className="w-full pl-9 pr-3 py-1.5 border border-slate-300 rounded-lg focus:outline-none focus:border-[#C5A059]"
                     required
                   />
                 </div>
@@ -297,7 +297,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuthSuc
                     value={regEmail}
                     onChange={(e) => setRegEmail(e.target.value)}
                     placeholder="email@example.com"
-                    className="w-full px-2.5 py-1.5 border border-slate-300 rounded-lg focus:outline-none focus:border-[#D4AF37]"
+                    className="w-full px-2.5 py-1.5 border border-slate-300 rounded-lg focus:outline-none focus:border-[#C5A059]"
                     required
                   />
                 </div>
@@ -308,7 +308,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuthSuc
                     value={regPhone}
                     onChange={(e) => setRegPhone(e.target.value)}
                     placeholder="+91 98765 43210"
-                    className="w-full px-2.5 py-1.5 border border-slate-300 rounded-lg focus:outline-none focus:border-[#D4AF37]"
+                    className="w-full px-2.5 py-1.5 border border-slate-300 rounded-lg focus:outline-none focus:border-[#C5A059]"
                     required
                   />
                 </div>
@@ -321,7 +321,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuthSuc
                   value={regPassword}
                   onChange={(e) => setRegPassword(e.target.value)}
                   placeholder="At least 6 characters"
-                  className="w-full px-2.5 py-1.5 border border-slate-300 rounded-lg focus:outline-none focus:border-[#D4AF37]"
+                  className="w-full px-2.5 py-1.5 border border-slate-300 rounded-lg focus:outline-none focus:border-[#C5A059]"
                   required
                 />
               </div>
@@ -336,7 +336,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuthSuc
                     value={regCompany}
                     onChange={(e) => setRegCompany(e.target.value)}
                     placeholder="Company / Firm Name"
-                    className="w-full px-2 py-1 text-xs bg-white border border-slate-300 rounded focus:border-[#D4AF37]"
+                    className="w-full px-2 py-1 text-xs bg-white border border-slate-300 rounded focus:border-[#C5A059]"
                   />
                   <input
                     type="text"
@@ -344,7 +344,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuthSuc
                     value={regGstin}
                     onChange={(e) => setRegGstin(e.target.value)}
                     placeholder="GSTIN (for Input Tax Credit)"
-                    className="w-full px-2 py-1 text-xs uppercase font-mono bg-white border border-slate-300 rounded focus:border-[#D4AF37]"
+                    className="w-full px-2 py-1 text-xs uppercase font-mono bg-white border border-slate-300 rounded focus:border-[#C5A059]"
                   />
                 </div>
               </div>
@@ -352,7 +352,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuthSuc
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full py-2.5 bg-linear-to-r from-[#F5D061] to-[#D4AF37] hover:from-[#FFE285] hover:to-[#DFB73E] text-slate-950 font-bold rounded-lg shadow-xs transition-all cursor-pointer disabled:opacity-50"
+                className="w-full py-3.5 bg-slate-950 hover:bg-[#846328] text-white font-medium rounded-full text-xs uppercase tracking-wider shadow-[0_4px_16px_rgba(15,23,42,0.1)] transition-all cursor-pointer disabled:opacity-50"
               >
                 {isLoading ? 'Creating Atelier Profile...' : 'Complete Registration'}
               </button>
@@ -370,7 +370,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuthSuc
                 value={forgotEmail}
                 onChange={(e) => setForgotEmail(e.target.value)}
                 placeholder="email@example.com"
-                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:border-[#D4AF37]"
+                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:border-[#C5A059]"
               />
               {forgotSent ? (
                 <div className="p-3 bg-emerald-50 text-emerald-800 rounded-lg text-xs font-semibold flex items-center gap-1.5">

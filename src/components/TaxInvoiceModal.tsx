@@ -26,20 +26,20 @@ export const TaxInvoiceModal: React.FC<TaxInvoiceModalProps> = ({ order, onClose
   const igst = !isUttarPradesh && !isExport ? totalGst : 0;
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/70 backdrop-blur-xs flex items-center justify-center p-3 sm:p-6 animate-fadeIn">
-      <div className="relative bg-white rounded-xl max-w-3xl w-full shadow-2xl border border-slate-300 flex flex-col overflow-hidden text-slate-900">
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4 sm:p-8 animate-fadeIn">
+      <div className="relative bg-white rounded-3xl max-w-3xl w-full shadow-[0_25px_60px_rgba(0,0,0,0.18)] border border-slate-200/80 flex flex-col overflow-hidden text-slate-900">
         {/* Controls Header */}
-        <div className="bg-slate-900 text-white px-5 py-3 flex items-center justify-between no-print">
-          <div className="flex items-center gap-2">
-            <FileText className="w-4 h-4 text-[#D4AF37]" />
-            <span className="font-bold text-xs uppercase tracking-wider text-[#D4AF37]">
+        <div className="bg-[#0F172A] text-white px-6 py-4 flex items-center justify-between no-print border-b border-slate-800">
+          <div className="flex items-center gap-2.5">
+            <FileText className="w-4 h-4 text-[#C5A059]" />
+            <span className="font-semibold text-xs tracking-wider uppercase text-[#DFBA73]">
               Official Indian GST Tax Invoice (Form GST INV-1)
             </span>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
             <button
               onClick={handlePrint}
-              className="px-3.5 py-1.5 bg-[#D4AF37] hover:bg-amber-400 text-slate-950 rounded font-bold text-xs flex items-center gap-1.5 shadow-xs cursor-pointer"
+              className="px-4 py-1.5 bg-[#C5A059] hover:bg-[#DFBA73] text-slate-950 rounded-full font-semibold text-xs flex items-center gap-1.5 shadow-xs cursor-pointer transition-colors"
             >
               <Printer className="w-3.5 h-3.5" />
               <span>Print Tax Invoice</span>
@@ -47,9 +47,9 @@ export const TaxInvoiceModal: React.FC<TaxInvoiceModalProps> = ({ order, onClose
             <button
               onClick={onClose}
               aria-label="Close invoice modal"
-              className="p-1 rounded text-slate-400 hover:text-white transition-colors cursor-pointer"
+              className="p-1.5 rounded-full text-slate-400 hover:text-white transition-colors cursor-pointer"
             >
-              <X className="w-5 h-5" />
+              <X className="w-4 h-4" />
             </button>
           </div>
         </div>
@@ -60,7 +60,7 @@ export const TaxInvoiceModal: React.FC<TaxInvoiceModalProps> = ({ order, onClose
           <div className="border-b-2 border-slate-900 pb-4 flex flex-col sm:flex-row justify-between items-start gap-4">
             <div>
               <div className="flex items-center gap-2">
-                <div className="w-9 h-9 rounded bg-slate-900 text-[#D4AF37] flex items-center justify-center font-bold text-base font-serif">
+                <div className="w-9 h-9 rounded bg-slate-900 text-[#DFBA73] flex items-center justify-center font-bold text-base font-serif">
                   TZ
                 </div>
                 <div>
@@ -194,15 +194,15 @@ export const TaxInvoiceModal: React.FC<TaxInvoiceModalProps> = ({ order, onClose
               {/* Official Digital Seal & Signature Imprint */}
               <div className="flex items-center gap-4 pt-2">
                 {/* Circular Brass Digital Seal */}
-                <div className="w-24 h-24 rounded-full border-2 border-dashed border-[#D4AF37] p-1 flex items-center justify-center shrink-0">
-                  <div className="w-full h-full rounded-full border border-[#D4AF37] flex flex-col items-center justify-center text-center p-1 bg-amber-50/50">
-                    <span className="text-[8px] font-bold text-[#8B6508] tracking-widest uppercase">
+                <div className="w-24 h-24 rounded-full border-2 border-dashed border-[#C5A059] p-1 flex items-center justify-center shrink-0">
+                  <div className="w-full h-full rounded-full border border-[#C5A059] flex flex-col items-center justify-center text-center p-1 bg-[#FBF9F5]">
+                    <span className="text-[8px] font-bold text-[#846328] tracking-widest uppercase">
                       TAG ZEE
                     </span>
                     <span className="text-[7px] text-slate-600 uppercase">
                       MORADABAD
                     </span>
-                    <div className="w-4 h-0.5 bg-[#D4AF37] my-0.5" />
+                    <div className="w-4 h-0.5 bg-[#C5A059] my-0.5" />
                     <span className="text-[6px] text-slate-500 font-mono">SEAL 244001</span>
                   </div>
                 </div>

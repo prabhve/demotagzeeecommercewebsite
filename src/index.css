@@ -1,25 +1,42 @@
 @import "tailwindcss";
 
 @layer base {
+  :root {
+    --color-champagne: #C5A059;
+    --color-champagne-light: #DFBA73;
+    --color-champagne-tint: #F4E8D1;
+    --color-champagne-dark: #846328;
+    --color-charcoal: #0F172A;
+    --color-slate-body: #334155;
+    --color-subtext: #64748B;
+    --color-canvas-white: #FFFFFF;
+    --color-alabaster: #FBF9F5;
+  }
+
   body {
     font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
-    color: #111827;
-    background-color: #ffffff;
+    color: #1E293B;
+    background-color: #FFFFFF;
+    letter-spacing: -0.01em;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
   h1, h2, h3, h4, .font-serif {
-    font-family: 'Outfit', 'Cinzel', 'Noto Sans', system-ui, serif;
+    font-family: 'Cormorant Garamond', Garamond, 'Playfair Display', Georgia, serif;
+    letter-spacing: -0.015em;
   }
 
   .font-mono {
-    font-family: 'Noto Sans Mono', 'Courier New', monospace;
+    font-family: 'JetBrains Mono', monospace;
   }
 }
 
+/* Luxury Atelier Micro-Interactions */
 @keyframes fadeIn {
   from {
     opacity: 0;
-    transform: scale(0.98);
+    transform: scale(0.985);
   }
   to {
     opacity: 1;
@@ -28,7 +45,21 @@
 }
 
 .animate-fadeIn {
-  animation: fadeIn 0.18s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: fadeIn 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Custom Gold Range Slider Thumb */
+input[type=range].gold-slider {
+  accent-color: #C5A059;
+}
+input[type=range].gold-slider::-webkit-slider-thumb {
+  background: #C5A059;
+  border: 2px solid #FFFFFF;
+  box-shadow: 0 2px 8px rgba(132, 99, 40, 0.35);
+  cursor: pointer;
+  width: 20px;
+  height: 20px;
+  border-radius: 9999px;
 }
 
 /* Print styles for Shipping Labels, Invoices, and Proforma documents */
@@ -58,7 +89,7 @@
     top: 0;
     width: 100%;
     margin: 0;
-    padding: 16px;
+    padding: 24px;
     background: white !important;
     box-shadow: none !important;
     border: none !important;

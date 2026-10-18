@@ -19,20 +19,20 @@ export const ShippingLabelModal: React.FC<ShippingLabelModalProps> = ({ order, o
   const courier = order.courier || 'Delhivery Air';
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/70 backdrop-blur-xs flex items-center justify-center p-3 sm:p-6 animate-fadeIn">
-      <div className="relative bg-white rounded-xl max-w-2xl w-full shadow-2xl border-2 border-slate-300 flex flex-col overflow-hidden text-slate-900">
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4 sm:p-8 animate-fadeIn">
+      <div className="relative bg-white rounded-3xl max-w-2xl w-full shadow-[0_25px_60px_rgba(0,0,0,0.18)] border border-slate-200/80 flex flex-col overflow-hidden text-slate-900">
         {/* Modal Controls Header */}
-        <div className="bg-slate-900 text-white px-5 py-3 flex items-center justify-between no-print">
-          <div className="flex items-center gap-2">
-            <Package className="w-4 h-4 text-[#D4AF37]" />
-            <span className="font-bold text-xs uppercase tracking-wider text-[#D4AF37]">
-              Shiprocket / Logistics Dispatch Label
+        <div className="bg-[#0F172A] text-white px-6 py-4 flex items-center justify-between no-print border-b border-slate-800">
+          <div className="flex items-center gap-2.5">
+            <Package className="w-4 h-4 text-[#C5A059]" />
+            <span className="font-semibold text-xs tracking-wider uppercase text-[#DFBA73]">
+              Shiprocket Thermal Dispatch Label (4×6)
             </span>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
             <button
               onClick={handlePrint}
-              className="px-3 py-1 bg-[#D4AF37] hover:bg-amber-400 text-slate-950 rounded font-bold text-xs flex items-center gap-1.5 shadow-xs cursor-pointer"
+              className="px-4 py-1.5 bg-[#C5A059] hover:bg-[#DFBA73] text-slate-950 rounded-full font-semibold text-xs flex items-center gap-1.5 shadow-xs cursor-pointer transition-colors"
             >
               <Printer className="w-3.5 h-3.5" />
               <span>Print Label</span>
@@ -40,9 +40,9 @@ export const ShippingLabelModal: React.FC<ShippingLabelModalProps> = ({ order, o
             <button
               onClick={onClose}
               aria-label="Close shipping label modal"
-              className="p-1 rounded text-slate-400 hover:text-white transition-colors cursor-pointer"
+              className="p-1.5 rounded-full text-slate-400 hover:text-white transition-colors cursor-pointer"
             >
-              <X className="w-5 h-5" />
+              <X className="w-4 h-4" />
             </button>
           </div>
         </div>
@@ -52,7 +52,7 @@ export const ShippingLabelModal: React.FC<ShippingLabelModalProps> = ({ order, o
           {/* Header Strip */}
           <div className="border-b-2 border-slate-900 pb-3 flex items-center justify-between">
             <div className="flex items-center gap-2.5">
-              <div className="w-9 h-9 rounded bg-slate-900 text-[#D4AF37] flex items-center justify-center font-bold text-sm font-serif">
+              <div className="w-9 h-9 rounded bg-slate-900 text-[#DFBA73] flex items-center justify-center font-bold text-sm font-serif">
                 TZ
               </div>
               <div>

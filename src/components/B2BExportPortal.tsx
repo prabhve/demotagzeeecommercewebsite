@@ -1,33 +1,17 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
-  Building2,
   Ship,
-  Plane,
   FileText,
-  Phone,
+  Sliders,
+  Layers,
+  ArrowRight,
+  ExternalLink,
   CheckCircle2,
   AlertCircle,
   Sparkles,
-  Sliders,
-  DollarSign,
-  Package,
-  ArrowRight,
-  ExternalLink,
-  Layers,
-  Calculator,
-  ShieldCheck,
-  Check,
 } from 'lucide-react';
-import type { Currency, Product, RfqCalculation, Incoterm } from '../types/index.ts';
-import { BRAND_INFO } from '../data/catalog.ts';
-import {
-  formatCurrency,
-  AVAILABLE_PORTS,
-  calculateB2BRfq,
-  getB2BTierRate,
-  validateGstin,
-  calculateBulkSheetSummary,
-} from '../utils/pricing.ts';
+import type { Product, Currency, Incoterm, RfqCalculation, PortOption } from '../types/index.ts';
+import { calculateB2BRfq, validateGstin, calculateBulkSheetSummary, AVAILABLE_PORTS } from '../utils/pricing.ts';
 import { ProductArtwork } from './ProductArtwork.tsx';
 
 interface B2BExportPortalProps {
@@ -39,42 +23,59 @@ interface B2BExportPortalProps {
 
 export const B2BExportPortal: React.FC<B2BExportPortalProps> = ({
   products,
-  currency,
+  currency: _currency,
   onOpenProformaModal,
-  initialSelectedProduct,
+  initialSelectedProduct = null,
 }) => {
+  // RFQ Active Configuration State
   const [selectedProduct, setSelectedProduct] = useState<Product>(
     initialSelectedProduct || products[0]
   );
   const [quantity, setQuantity] = useState<number>(100);
-  const [selectedPortId, setSelectedPortId] = useState<string>('mundra');
   const [incoterm, setIncoterm] = useState<Incoterm>('FOB');
-  const [companyName, setCompanyName] = useState<string>('Regal Haven Living LLC');
-  const [buyerGstin, setBuyerGstin] = useState<string>('09AABCT1332L1Z5');
-  const [gstinFeedback, setGstinFeedback] = useState(() => validateGstin('09AABCT1332L1Z5'));
+  const [selectedPortId, setSelectedPortId] = useState<string>('port-mundra');
 
-  // Quick Bulk Order Sheet Matrix state (quantities for all 6 SKUs)
-  const [bulkQuantities, setBulkQuantities] = useState<Record<string, number>>({
-    'tz-urli-royal-01': 50,
-    'tz-peacock-lamp-02': 30,
-    'tz-copper-cutlery-03': 20,
-    'tz-moroccan-lantern-04': 40,
-    'tz-brass-planter-05': 0,
-    'tz-dhokra-statuette-06': 25,
-  });
+  // Buyer Organization Profile & GSTIN verification
+  const [companyName, setCompanyName] = useState<string>('');
+  const [buyerGstin, setBuyerGstin] = useState<string>('');
+  const [gstinFeedback, setGstinFeedback] = useState<{
+    isValid: boolean;
+    stateCode?: string;
+    stateName?: string;
+    error?: string;
+  }>({ isValid: false });
 
-  const rfq = calculateB2BRfq(selectedProduct, quantity, selectedPortId, incoterm);
-  const bulkSummary = calculateBulkSheetSummary(bulkQuantities, products);
+  // Multi-SKU Bulk Matrix order state
+  const [bulkQuantities, setBulkQuantities] = useState<Record<string, number>>({});
+
+  // Compute live single-SKU RFQ
+  const rfq: RfqCalculation = useMemo(() => {
+    return calculateB2BRfq(selectedProduct, quantity, selectedPortId, incoterm);
+  }, [selectedProduct, quantity, selectedPortId, incoterm]);
+
+  // Compute multi-SKU bulk procurement matrix
+  const bulkSummary = useMemo(() => {
+    return calculateBulkSheetSummary(bulkQuantities, products);
+  }, [bulkQuantities, products]);
 
   const handleGstinChange = (val: string) => {
-    setBuyerGstin(val);
-    setGstinFeedback(validateGstin(val));
+    const clean = val.toUpperCase().trim();
+    setBuyerGstin(clean);
+    if (clean.length === 15) {
+      const res = validateGstin(clean);
+      setGstinFeedback(res);
+    } else {
+      setGstinFeedback({
+        isValid: false,
+        error: clean.length > 0 ? `Incomplete GSTIN (${clean.length}/15 chars)` : undefined,
+      });
+    }
   };
 
-  const handleBulkQuantityChange = (productId: string, val: number) => {
+  const handleBulkQuantityChange = (productId: string, qty: number) => {
     setBulkQuantities((prev) => ({
       ...prev,
-      [productId]: Math.max(0, val),
+      [productId]: Math.max(0, qty),
     }));
   };
 
@@ -98,112 +99,54 @@ export const B2BExportPortal: React.FC<B2BExportPortalProps> = ({
     window.open(`https://wa.me/917351366786?text=${text}`, '_blank');
   };
 
-  const handleTransmitBulkSheetWhatsApp = () => {
-    const itemsList = bulkSummary.itemSummaries
-      .map((item) => `• ${item.product.name} (${item.product.sku}): ${item.quantity} pcs @ ₹${item.unitPrice}`)
-      .join('\n');
-
-    const text = encodeURIComponent(
-      `*TAG ZEE B2B MULTI-SKU BULK MATRIX INQUIRY*\n` +
-      `----------------------------------------\n` +
-      `*Company:* ${companyName || 'Wholesale Buyer'}\n` +
-      `*Tax ID / GSTIN:* ${buyerGstin || 'N/A'}\n` +
-      `*Items Requested (${bulkSummary.totalUnits} units total):*\n${itemsList}\n\n` +
-      `*Aggregate Valuation:* ₹${bulkSummary.totalInr.toLocaleString('en-IN')}\n` +
-      `*Estimated Cargo Volume:* ${bulkSummary.totalCbm} m³ (${bulkSummary.totalPallets} Pallets, ${bulkSummary.totalGrossWeightKg} kg)\n` +
-      `*Port of Export:* Mundra / Nhava Sheva (Incoterm: FOB)\n` +
-      `----------------------------------------\n` +
-      `Atir Rais / Zeefaham Rais, please verify production run slot.`
-    );
-    window.open(`https://wa.me/917351366786?text=${text}`, '_blank');
-  };
-
   return (
-    <div className="bg-[#FAF9F6] min-h-screen text-slate-900 pb-16">
-      {/* Golden B2B Wholesale Active Banner */}
-      <div className="bg-linear-to-r from-[#111827] via-[#1F2937] to-[#111827] text-white border-b-2 border-[#D4AF37] py-4 px-4 sm:px-6 shadow-md">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-[#D4AF37] text-slate-950 flex items-center justify-center font-bold shadow-xs">
-              <Building2 className="w-6 h-6" />
+    <div className="bg-[#FAF9F5] min-h-screen text-slate-900 pb-28 selection:bg-[#DFBA73]/30">
+      {/* Editorial Luxury Header Banner */}
+      <div className="bg-[#0F172A] text-white py-12 px-6 sm:px-12 border-b border-slate-800">
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+          <div className="space-y-2">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-900 border border-slate-800 text-[10px] tracking-[0.2em] uppercase font-semibold text-[#DFBA73]">
+              <Sparkles className="w-3 h-3 text-[#C5A059]" />
+              INSTITUTIONAL PROCUREMENT &amp; BULK EXPORT SUITE
             </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="text-xs font-bold uppercase tracking-wider text-[#D4AF37]">
-                  B2B WHOLESALE &amp; BULK EXPORT ACTIVE
-                </span>
-                <span className="text-[10px] bg-amber-500/20 text-[#D4AF37] px-2 py-0.5 rounded border border-[#D4AF37]/40 font-mono font-semibold">
-                  Factory-Direct Ex-Moradabad Pricing
-                </span>
-              </div>
-              <p className="text-xs text-slate-300 mt-0.5">
-                Direct export container allocations from Moradabad Foundry. Strict MOQ 20 units per SKU.
-              </p>
-            </div>
+            <h1 className="text-3xl sm:text-4xl font-serif font-normal text-white tracking-tight">
+              Direct Foundry Allocations &amp; Global Logistics
+            </h1>
+            <p className="text-xs sm:text-sm text-slate-400 font-light max-w-2xl leading-relaxed">
+              Ex-factory Moradabad container pricing, automated Incoterms 2026 calculations, RoDTEP duty drawback tracking, and instant proforma generation.
+            </p>
           </div>
 
-          <div className="flex items-center gap-2 text-xs">
-            <span className="hidden sm:inline text-slate-400">Export Director Line:</span>
-            <a
-              href="https://wa.me/917351366786?text=Hello%20Atir%20Rais,%20inquiring%20about%20TAG%20ZEE%20B2B%20Wholesale%20Catalog"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="px-3.5 py-2 bg-emerald-700 hover:bg-emerald-600 text-white rounded-lg font-bold flex items-center gap-2 shadow-xs transition-colors cursor-pointer"
-            >
-              <Phone className="w-3.5 h-3.5" />
-              <span>Direct WhatsApp to Atir Rais</span>
-              <ExternalLink className="w-3 h-3" />
-            </a>
+          <div className="flex items-center gap-4 shrink-0 text-xs text-slate-300">
+            <div className="p-3 bg-slate-900/80 rounded-2xl border border-slate-800 text-right">
+              <span className="text-[10px] uppercase tracking-wider text-slate-400 block">Strict MOQ</span>
+              <strong className="text-[#DFBA73] font-mono text-sm">20 Units / SKU</strong>
+            </div>
+            <div className="p-3 bg-slate-900/80 rounded-2xl border border-slate-800 text-right">
+              <span className="text-[10px] uppercase tracking-wider text-slate-400 block">IEC License</span>
+              <strong className="text-slate-200 font-mono text-sm">Govt. Certified</strong>
+            </div>
           </div>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10 space-y-12">
-        {/* B2B Trust Points Strip */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="p-4 bg-white rounded-xl border border-[#D4AF37]/30 shadow-xs flex items-center gap-3">
-            <ShieldCheck className="w-6 h-6 text-[#9E7A1C] shrink-0" />
+      <div className="max-w-7xl mx-auto px-6 sm:px-12 py-16 sm:py-24 space-y-20">
+        {/* INSTITUTIONAL PROCUREMENT SUITE: RFQ & PROFORMA CALCULATOR */}
+        <section className="bg-white rounded-3xl p-8 sm:p-12 border border-slate-200/70 shadow-[0_12px_40px_rgba(0,0,0,0.04)] space-y-10">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-100">
             <div>
-              <span className="text-xs font-bold text-slate-900 block">AQL 2.5 Strict Quality Audit</span>
-              <span className="text-[11px] text-slate-500">Dual stage metallurgical inspection before crate sealing.</span>
-            </div>
-          </div>
-          <div className="p-4 bg-white rounded-xl border border-[#D4AF37]/30 shadow-xs flex items-center gap-3">
-            <FileText className="w-6 h-6 text-[#9E7A1C] shrink-0" />
-            <div>
-              <span className="text-xs font-bold text-slate-900 block">Instant GST Input Tax Credit</span>
-              <span className="text-[11px] text-slate-500">Automated HSN 7418 e-invoicing for 100% tax claim.</span>
-            </div>
-          </div>
-          <div className="p-4 bg-white rounded-xl border border-[#D4AF37]/30 shadow-xs flex items-center gap-3">
-            <Ship className="w-6 h-6 text-[#9E7A1C] shrink-0" />
-            <div>
-              <span className="text-xs font-bold text-slate-900 block">FOB / CIF Export Ready</span>
-              <span className="text-[11px] text-slate-500">Custom barcoded, sea-worthy fumigated palletization.</span>
-            </div>
-          </div>
-        </div>
-
-        {/* SECTION 1: Interactive Bulk RFQ & Proforma Generator Engine */}
-        <section className="bg-white rounded-2xl border-2 border-[#D4AF37]/50 shadow-xl p-6 sm:p-8 relative overflow-hidden">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-slate-200">
-            <div>
-              <div className="text-xs uppercase tracking-widest font-bold text-[#8B6508] flex items-center gap-1.5">
-                <Sparkles className="w-3.5 h-3.5 text-[#D4AF37]" />
-                <span>The Exporter&apos;s Profit Engine</span>
-              </div>
-              <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 font-serif mt-1">
-                Interactive Export RFQ &amp; Proforma Generator
+              <span className="text-[10px] tracking-[0.24em] font-semibold uppercase text-[#846328] block">
+                ENGINEERED EXPORT VALUATION
+              </span>
+              <h2 className="text-2xl sm:text-3xl font-serif font-normal text-slate-950 mt-1">
+                Institutional RFQ Configurator
               </h2>
-              <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
-                Configure real factory production batches, Incoterms, sea/air freight parameters, CBM load volumes, and RoDTEP export drawbacks.
-              </p>
             </div>
 
-            {/* Quick SKU Selector */}
-            <div className="flex items-center gap-2">
-              <label className="text-xs font-semibold text-slate-700 whitespace-nowrap">
-                Select Handicraft SKU:
+            {/* SKU Selector */}
+            <div className="flex items-center gap-3">
+              <label className="text-xs font-medium text-slate-600 whitespace-nowrap">
+                Handicraft SKU:
               </label>
               <select
                 value={selectedProduct.id}
@@ -211,7 +154,7 @@ export const B2BExportPortal: React.FC<B2BExportPortalProps> = ({
                   const p = products.find((item) => item.id === e.target.value);
                   if (p) setSelectedProduct(p);
                 }}
-                className="text-xs bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 font-semibold text-slate-800 focus:outline-none focus:border-[#D4AF37]"
+                className="text-xs bg-slate-50 border border-slate-200 rounded-full px-4 py-2 font-medium text-slate-800 focus:outline-none focus:border-[#C5A059] cursor-pointer"
               >
                 {products.map((p) => (
                   <option key={p.id} value={p.id}>
@@ -222,35 +165,35 @@ export const B2BExportPortal: React.FC<B2BExportPortalProps> = ({
             </div>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 pt-6">
-            {/* Left Column: Sliders, Inputs & Logistics Selection */}
-            <div className="lg:col-span-7 space-y-6">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
+            {/* Left Column: Slider, Incoterms & Tax Input */}
+            <div className="lg:col-span-7 space-y-8">
               {/* Product Preview Card */}
-              <div className="p-4 bg-radial from-[#FFFDF8] to-[#F8F4EA] rounded-xl border border-[#D4AF37]/30 flex items-center gap-4">
-                <div className="w-20 h-20 rounded-lg overflow-hidden shrink-0 border border-slate-200 bg-white">
+              <div className="p-5 bg-gradient-to-b from-[#FFFDF9] to-[#FBF9F5] rounded-2xl border border-slate-200/70 flex items-center gap-5">
+                <div className="w-20 h-20 rounded-xl overflow-hidden shrink-0 border border-slate-200/80 bg-white">
                   <ProductArtwork productId={selectedProduct.id} />
                 </div>
-                <div>
-                  <h4 className="font-bold text-slate-900 text-sm font-serif">{selectedProduct.name}</h4>
-                  <div className="text-xs text-slate-500 mt-0.5">
-                    Unit Gross Weight: <strong className="text-slate-800">{selectedProduct.grossWeightGrams}g</strong> ({selectedProduct.weightKg} kg) · CBM: <strong className="text-slate-800">{selectedProduct.cbmPerUnit} m³</strong>
+                <div className="space-y-1">
+                  <h4 className="font-serif text-lg text-slate-950 font-normal">{selectedProduct.name}</h4>
+                  <div className="text-xs text-slate-500 font-light">
+                    Gross: <strong className="text-slate-800 font-medium">{selectedProduct.grossWeightGrams}g</strong> ({selectedProduct.weightKg} kg) · Volume: <strong className="text-slate-800 font-medium">{selectedProduct.cbmPerUnit} m³</strong>
                   </div>
-                  <div className="text-xs text-amber-900 font-semibold mt-1">
-                    HSN: {selectedProduct.hsnCode} (Brass Artware) · Master Packaging: {selectedProduct.unitsPerMasterCarton} pcs/carton
+                  <div className="text-[11px] text-[#846328] font-medium">
+                    HSN: {selectedProduct.hsnCode} (Cast Brass Artware) · Packaging: {selectedProduct.unitsPerMasterCarton} pcs/master carton
                   </div>
                 </div>
               </div>
 
-              {/* Strict MOQ Quantity Slider (20 to 1,000 units) */}
-              <div className="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-3">
+              {/* Slider with custom gold thumb */}
+              <div className="p-6 bg-[#FBF9F5] rounded-2xl border border-slate-200/70 space-y-4">
                 <div className="flex items-center justify-between">
-                  <div>
-                    <label className="text-xs font-bold text-slate-800 flex items-center gap-2">
-                      <Sliders className="w-4 h-4 text-[#9E7A1C]" />
+                  <div className="space-y-0.5">
+                    <label className="text-xs font-semibold text-slate-900 flex items-center gap-2">
+                      <Sliders className="w-4 h-4 text-[#C5A059]" />
                       <span>Order Quantity (Strict MOQ: 20 Units)</span>
                     </label>
-                    <span className="text-[11px] text-slate-500">
-                      Drag slider or type exact batch size for automated slab discount.
+                    <span className="text-[11px] text-slate-500 font-light block">
+                      Drag slider or specify exact quantity for automated volume tiers.
                     </span>
                   </div>
                   <div className="flex items-center gap-2">
@@ -260,9 +203,9 @@ export const B2BExportPortal: React.FC<B2BExportPortalProps> = ({
                       max={2000}
                       value={quantity}
                       onChange={(e) => setQuantity(Math.max(20, parseInt(e.target.value) || 20))}
-                      className="w-24 px-2 py-1 text-center font-bold font-mono text-sm border-2 border-[#D4AF37] rounded-lg bg-white"
+                      className="w-24 px-3 py-1.5 text-center font-semibold font-mono text-xs border border-slate-300 rounded-full bg-white focus:outline-none focus:border-[#C5A059]"
                     />
-                    <span className="text-xs font-bold text-slate-700">Units</span>
+                    <span className="text-xs text-slate-600 font-medium">Units</span>
                   </div>
                 </div>
 
@@ -273,118 +216,138 @@ export const B2BExportPortal: React.FC<B2BExportPortalProps> = ({
                   step="10"
                   value={quantity}
                   onChange={(e) => setQuantity(parseInt(e.target.value))}
-                  className="w-full accent-[#D4AF37] cursor-pointer"
+                  className="w-full gold-slider cursor-pointer"
                 />
 
-                {/* Slab Indicators on Slider */}
-                <div className="grid grid-cols-3 gap-2 text-center text-[10px] pt-1">
-                  <div className={`p-1.5 rounded border ${quantity < 50 ? 'bg-[#D4AF37]/20 border-[#D4AF37] font-bold text-slate-900' : 'bg-white border-slate-200 text-slate-500'}`}>
-                    <span>Tier 1 (20 - 49 pcs)</span>
-                    <strong className="block text-slate-800">₹{selectedProduct.b2bSlabs.tier1.price}/pc</strong>
+                {/* Minimalist 3-Column Pill Comparison Bar */}
+                <div className="grid grid-cols-3 gap-2.5 pt-2 text-center text-[11px]">
+                  <div
+                    className={`py-2 px-3 rounded-full border transition-all ${
+                      quantity < 50
+                        ? 'bg-slate-950 text-[#DFBA73] border-slate-950 font-medium shadow-xs'
+                        : 'bg-white border-slate-200/80 text-slate-600'
+                    }`}
+                  >
+                    <span className="block text-[10px] uppercase tracking-wider">Tier 1 · 20+ pcs</span>
+                    <strong className="font-mono text-xs">₹{selectedProduct.b2bSlabs.tier1.price} / pc</strong>
                   </div>
-                  <div className={`p-1.5 rounded border ${quantity >= 50 && quantity < 100 ? 'bg-[#D4AF37]/20 border-[#D4AF37] font-bold text-slate-900' : 'bg-white border-slate-200 text-slate-500'}`}>
-                    <span>Tier 2 (50 - 99 pcs)</span>
-                    <strong className="block text-slate-800">₹{selectedProduct.b2bSlabs.tier2.price}/pc</strong>
+
+                  <div
+                    className={`py-2 px-3 rounded-full border transition-all ${
+                      quantity >= 50 && quantity < 100
+                        ? 'bg-slate-950 text-[#DFBA73] border-slate-950 font-medium shadow-xs'
+                        : 'bg-white border-slate-200/80 text-slate-600'
+                    }`}
+                  >
+                    <span className="block text-[10px] uppercase tracking-wider">Tier 2 · 50+ pcs</span>
+                    <strong className="font-mono text-xs">₹{selectedProduct.b2bSlabs.tier2.price} / pc</strong>
                   </div>
-                  <div className={`p-1.5 rounded border ${quantity >= 100 ? 'bg-[#D4AF37]/20 border-[#D4AF37] font-bold text-slate-900' : 'bg-white border-slate-200 text-slate-500'}`}>
-                    <span>Tier 3 (100+ pcs)</span>
-                    <strong className="block text-slate-800">₹{selectedProduct.b2bSlabs.tier3.price}/pc (Direct Export)</strong>
+
+                  <div
+                    className={`py-2 px-3 rounded-full border transition-all ${
+                      quantity >= 100
+                        ? 'bg-slate-950 text-[#DFBA73] border-slate-950 font-medium shadow-xs'
+                        : 'bg-white border-slate-200/80 text-slate-600'
+                    }`}
+                  >
+                    <span className="block text-[10px] uppercase tracking-wider">Tier 3 · 100+ pcs</span>
+                    <strong className="font-mono text-xs">₹{selectedProduct.b2bSlabs.tier3.price} / pc</strong>
                   </div>
                 </div>
               </div>
 
               {/* Incoterms Selector */}
-              <div className="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-2">
-                <label className="text-xs font-bold text-slate-800 flex items-center gap-2">
-                  <Layers className="w-4 h-4 text-[#9E7A1C]" />
-                  <span>International Commercial Terms (Incoterms 2026)</span>
+              <div className="space-y-3">
+                <label className="text-xs font-semibold text-slate-800 flex items-center gap-2">
+                  <Layers className="w-4 h-4 text-[#C5A059]" />
+                  <span>Incoterms 2026 Commercial Standard</span>
                 </label>
-                <div className="grid grid-cols-3 gap-2">
+                <div className="grid grid-cols-3 gap-3">
                   {(['Ex-Works', 'FOB', 'CIF'] as Incoterm[]).map((term) => (
                     <button
                       key={term}
                       type="button"
                       onClick={() => setIncoterm(term)}
-                      className={`p-2.5 rounded-lg border text-center text-xs transition-all cursor-pointer ${
+                      className={`p-3 rounded-2xl border text-center text-xs transition-all cursor-pointer ${
                         incoterm === term
-                          ? 'bg-[#111827] text-[#D4AF37] border-[#D4AF37] font-bold shadow-xs'
-                          : 'bg-white border-slate-200 text-slate-700 hover:border-slate-400'
+                          ? 'bg-slate-950 text-[#DFBA73] border-slate-950 shadow-xs'
+                          : 'bg-white border-slate-200/80 text-slate-700 hover:border-slate-300'
                       }`}
                     >
-                      <div className="font-bold">{term}</div>
-                      <span className="text-[10px] block opacity-80">
+                      <div className="font-medium text-xs">{term}</div>
+                      <span className="text-[10px] block opacity-75 mt-0.5">
                         {term === 'Ex-Works' && 'Factory Moradabad'}
-                        {term === 'FOB' && 'Port Loaded'}
-                        {term === 'CIF' && 'Freight & Insured'}
+                        {term === 'FOB' && 'Nhava Sheva / Mundra'}
+                        {term === 'CIF' && 'Ocean Freight + Insurance'}
                       </span>
                     </button>
                   ))}
                 </div>
               </div>
 
-              {/* Port Selection */}
-              <div className="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-2">
-                <label className="text-xs font-bold text-slate-800 flex items-center gap-2">
-                  <Ship className="w-4 h-4 text-[#9E7A1C]" />
+              {/* Destination Port Selection */}
+              <div className="space-y-3">
+                <label className="text-xs font-semibold text-slate-800 flex items-center gap-2">
+                  <Ship className="w-4 h-4 text-[#C5A059]" />
                   <span>Destination Discharge Port / Terminal</span>
                 </label>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                  {AVAILABLE_PORTS.map((port) => (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {AVAILABLE_PORTS.map((port: PortOption) => (
                     <button
                       key={port.id}
                       type="button"
                       onClick={() => setSelectedPortId(port.id)}
-                      className={`p-2.5 rounded-lg border text-left text-xs transition-all cursor-pointer ${
+                      className={`p-3.5 rounded-2xl border text-left text-xs transition-all cursor-pointer ${
                         selectedPortId === port.id
-                          ? 'bg-white border-[#D4AF37] shadow-xs ring-1 ring-[#D4AF37]'
-                          : 'bg-white/70 border-slate-200 hover:bg-white text-slate-700'
+                          ? 'bg-white border-[#C5A059] shadow-xs ring-1 ring-[#C5A059]'
+                          : 'bg-white border-slate-200/80 text-slate-700 hover:border-slate-300'
                       }`}
                     >
-                      <div className="font-bold text-slate-900">{port.name}</div>
+                      <div className="font-medium text-slate-900">{port.name}</div>
                       <div className="text-[10px] text-slate-500 flex items-center justify-between mt-1">
-                        <span>Sea: {port.transitDaysSea}</span>
-                        <span>Air: {port.transitDaysAir}</span>
+                        <span>Sea Transit: {port.transitDaysSea}</span>
+                        <span>Air Cargo: {port.transitDaysAir}</span>
                       </div>
                     </button>
                   ))}
                 </div>
               </div>
 
-              {/* Indian GSTIN Auto-Validation Simulator */}
-              <div className="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-2.5">
+              {/* Tax Profile / GSTIN Verification */}
+              <div className="p-5 bg-[#FBF9F5] rounded-2xl border border-slate-200/70 space-y-3">
                 <div className="flex items-center justify-between">
-                  <label className="text-xs font-bold text-slate-800">
-                    B2B Buyer Tax Profile (GSTIN Verification)
+                  <label className="text-xs font-semibold text-slate-800">
+                    Buyer Tax Profile (GSTIN Verification)
                   </label>
-                  <span className="text-[10px] text-slate-500">100% Input Tax Credit</span>
+                  <span className="text-[10px] text-slate-500 font-light">100% Eligible ITC</span>
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <input
                     type="text"
                     value={companyName}
                     onChange={(e) => setCompanyName(e.target.value)}
-                    placeholder="Company Legal Entity Name"
-                    className="px-3 py-1.5 text-xs bg-white border border-slate-300 rounded-lg focus:outline-none focus:border-[#D4AF37]"
+                    placeholder="Buyer Legal Business Name"
+                    className="px-3.5 py-2 text-xs bg-white border border-slate-200 rounded-full focus:outline-none focus:border-[#C5A059]"
                   />
                   <input
                     type="text"
                     maxLength={15}
                     value={buyerGstin}
                     onChange={(e) => handleGstinChange(e.target.value)}
-                    placeholder="Enter 15-char GSTIN (e.g. 09AABCT1332L1Z5)"
-                    className="px-3 py-1.5 text-xs font-mono uppercase bg-white border border-slate-300 rounded-lg focus:outline-none focus:border-[#D4AF37]"
+                    placeholder="Enter 15-char Indian GSTIN"
+                    className="px-3.5 py-2 text-xs font-mono uppercase bg-white border border-slate-200 rounded-full focus:outline-none focus:border-[#C5A059]"
                   />
                 </div>
 
                 {gstinFeedback.isValid ? (
-                  <div className="p-2.5 bg-emerald-50 rounded-lg border border-emerald-200 text-xs text-emerald-800 flex items-center gap-2">
+                  <div className="p-3 bg-emerald-50 rounded-xl border border-emerald-200 text-xs text-emerald-800 flex items-center gap-2">
                     <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
                     <div>
-                      <strong>GSTIN Verified:</strong> Registered in State Code {gstinFeedback.stateCode} ({gstinFeedback.stateName}). Eligible for CGST+SGST or IGST ITC claims.
+                      <strong>GSTIN Verified:</strong> Registered in {gstinFeedback.stateName} (Code {gstinFeedback.stateCode}). Fully eligible for Input Tax Credit claims.
                     </div>
                   </div>
                 ) : (
-                  <div className="p-2.5 bg-amber-50 rounded-lg border border-amber-200 text-xs text-amber-800 flex items-center gap-2">
+                  <div className="p-3 bg-amber-50/70 rounded-xl border border-amber-200/70 text-xs text-amber-800 flex items-center gap-2">
                     <AlertCircle className="w-4 h-4 text-amber-600 shrink-0" />
                     <div>
                       {gstinFeedback.error || 'Enter a valid 15-character Indian GSTIN for tax invoice credit.'}
@@ -394,197 +357,167 @@ export const B2BExportPortal: React.FC<B2BExportPortalProps> = ({
               </div>
             </div>
 
-            {/* Right Column: Live Instant Cost Ledger & Proforma Actions */}
-            <div className="lg:col-span-5 space-y-5">
-              <div className="bg-[#111827] text-white p-6 rounded-2xl border border-[#D4AF37]/50 shadow-lg">
+            {/* Right Column: Clean Summary Card in Neat Two-Column Rows */}
+            <div className="lg:col-span-5 space-y-6">
+              <div className="bg-[#0F172A] text-white p-8 rounded-3xl border border-slate-800 shadow-[0_12px_36px_rgba(15,23,42,0.18)] space-y-6">
                 <div className="flex items-center justify-between pb-4 border-b border-slate-800">
-                  <span className="text-xs font-bold uppercase tracking-wider text-[#D4AF37]">
-                    Instant RFQ Ledger ({rfq.incoterm})
+                  <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#DFBA73]">
+                    INSTITUTIONAL RFQ LEDGER ({rfq.incoterm})
                   </span>
-                  <span className="text-[11px] bg-slate-800 text-slate-300 px-2 py-0.5 rounded font-mono">
+                  <span className="text-xs bg-slate-900 text-slate-300 px-3 py-1 rounded-full font-mono border border-slate-800">
                     Rate: ₹{rfq.unitPrice} / pc
                   </span>
                 </div>
 
-                {/* Metrics Breakdown Grid */}
-                <div className="grid grid-cols-2 gap-3 mt-4 text-xs">
-                  <div className="p-3 bg-slate-800/80 rounded-lg border border-slate-700">
-                    <span className="text-slate-400 block text-[10px]">Total Gross Weight</span>
-                    <strong className="text-base text-white font-mono">{rfq.totalGrossWeightKg} KG</strong>
-                    <span className="text-[10px] text-slate-400 block">incl. 8% crate tare</span>
+                {/* Logistics Metrics 2x2 Grid */}
+                <div className="grid grid-cols-2 gap-3 text-xs">
+                  <div className="p-4 bg-slate-900/90 rounded-2xl border border-slate-800 space-y-1">
+                    <span className="text-slate-400 block text-[10px] tracking-wider uppercase">Gross Cargo Weight</span>
+                    <strong className="text-lg text-white font-mono">{rfq.totalGrossWeightKg} KG</strong>
+                    <span className="text-[10px] text-slate-500 block">incl. 8% wooden crate tare</span>
                   </div>
-                  <div className="p-3 bg-slate-800/80 rounded-lg border border-slate-700">
-                    <span className="text-slate-400 block text-[10px]">CBM Cargo Volume</span>
-                    <strong className="text-base text-white font-mono">{rfq.totalCbm} m³</strong>
-                    <span className="text-[10px] text-slate-400 block">in {rfq.totalCartons} master cartons</span>
+
+                  <div className="p-4 bg-slate-900/90 rounded-2xl border border-slate-800 space-y-1">
+                    <span className="text-slate-400 block text-[10px] tracking-wider uppercase">CBM Cargo Volume</span>
+                    <strong className="text-lg text-white font-mono">{rfq.totalCbm} m³</strong>
+                    <span className="text-[10px] text-slate-500 block">{rfq.totalCartons} master cartons</span>
                   </div>
-                  <div className="p-3 bg-slate-800/80 rounded-lg border border-slate-700">
-                    <span className="text-slate-400 block text-[10px]">Pallet Allocation</span>
-                    <strong className="text-base text-white font-mono">{rfq.totalPallets} Pallets</strong>
-                    <span className="text-[10px] text-slate-400 block">Euro-Standard 120x80cm</span>
+
+                  <div className="p-4 bg-slate-900/90 rounded-2xl border border-slate-800 space-y-1">
+                    <span className="text-slate-400 block text-[10px] tracking-wider uppercase">Pallet Allocation</span>
+                    <strong className="text-lg text-white font-mono">{rfq.totalPallets} Pallets</strong>
+                    <span className="text-[10px] text-slate-500 block">Euro-Standard 120×80cm</span>
                   </div>
-                  <div className="p-3 bg-slate-800/80 rounded-lg border border-slate-700">
-                    <span className="text-slate-400 block text-[10px]">RoDTEP Duty Rebate</span>
-                    <strong className="text-base text-emerald-400 font-mono">₹{rfq.dutyDrawbackInr.toLocaleString('en-IN')}</strong>
-                    <span className="text-[10px] text-slate-400 block">~3.5% Export Rebate</span>
+
+                  <div className="p-4 bg-slate-900/90 rounded-2xl border border-slate-800 space-y-1">
+                    <span className="text-slate-400 block text-[10px] tracking-wider uppercase">RoDTEP Rebate</span>
+                    <strong className="text-lg text-emerald-400 font-mono">₹{rfq.dutyDrawbackInr.toLocaleString('en-IN')}</strong>
+                    <span className="text-[10px] text-slate-500 block">~3.5% Duty Drawback</span>
                   </div>
                 </div>
 
-                {/* Subtotal Total Summary */}
-                <div className="mt-6 pt-4 border-t border-slate-800 space-y-2">
-                  <div className="flex justify-between text-xs text-slate-400">
+                {/* Neat Two-Column Valuation Rows */}
+                <div className="pt-4 border-t border-slate-800 space-y-3 text-xs">
+                  <div className="flex justify-between text-slate-400">
                     <span>Batch Quantity</span>
                     <span className="font-mono text-white">{rfq.quantity} Units</span>
                   </div>
-                  <div className="flex justify-between text-xs text-slate-400">
+                  <div className="flex justify-between text-slate-400">
                     <span>Incoterm &amp; Port</span>
                     <span className="font-mono text-white">{rfq.incoterm} · {rfq.port.name.split(' ')[0]}</span>
                   </div>
-                  <div className="flex justify-between text-xs text-slate-400">
-                    <span>Unit Rate</span>
+                  <div className="flex justify-between text-slate-400">
+                    <span>Unit Slab Rate</span>
                     <span className="font-mono text-white">₹{rfq.unitPrice} / pc</span>
                   </div>
-                  <div className="flex justify-between text-sm text-slate-300 pt-2 border-t border-slate-800">
-                    <span>Total RFQ Value (INR)</span>
-                    <span className="font-mono font-bold text-white text-base">
+
+                  <div className="flex justify-between text-sm text-slate-300 pt-3 border-t border-slate-800">
+                    <span>Total Valuation (INR)</span>
+                    <span className="font-mono font-semibold text-white text-lg">
                       ₹{rfq.subtotalInr.toLocaleString('en-IN')}
                     </span>
                   </div>
                   <div className="flex justify-between text-xs text-slate-400">
                     <span>USD Equivalent (@ 86.5)</span>
-                    <span className="font-mono text-[#D4AF37] font-semibold">
+                    <span className="font-mono text-[#DFBA73] font-medium">
                       ${rfq.subtotalUsd.toLocaleString('en-US')} USD
                     </span>
                   </div>
                   <div className="flex justify-between text-xs text-slate-400">
                     <span>EUR Equivalent (@ 93.2)</span>
-                    <span className="font-mono text-amber-200 font-semibold">
+                    <span className="font-mono text-amber-200 font-medium">
                       €{rfq.subtotalEur.toLocaleString('en-US')} EUR
                     </span>
                   </div>
                 </div>
               </div>
 
-              {/* Action Buttons: Printable Proforma & WhatsApp to Atir Rais */}
+              {/* Action Buttons: Printable Proforma & Direct WhatsApp */}
               <div className="space-y-3 pt-2">
                 <button
                   onClick={() => onOpenProformaModal(rfq, companyName, buyerGstin)}
-                  className="w-full py-3 px-4 bg-linear-to-r from-[#F5D061] to-[#D4AF37] hover:from-[#FFE285] hover:to-[#DFB73E] text-slate-950 font-bold rounded-lg shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer text-xs"
+                  className="w-full py-4 px-6 bg-slate-950 hover:bg-[#846328] text-white font-medium rounded-full shadow-[0_4px_20px_rgba(15,23,42,0.15)] transition-all flex items-center justify-center gap-2.5 cursor-pointer text-xs uppercase tracking-wider"
                 >
-                  <FileText className="w-4 h-4" />
+                  <FileText className="w-4 h-4 text-[#DFBA73]" />
                   <span>Generate Instant PDF Proforma Invoice</span>
                 </button>
 
                 <button
                   onClick={handleTransmitWhatsApp}
-                  className="w-full py-3 px-4 bg-emerald-700 hover:bg-emerald-600 text-white font-bold rounded-lg shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer text-xs"
+                  className="w-full py-4 px-6 bg-emerald-800 hover:bg-emerald-700 text-white font-medium rounded-full shadow-[0_4px_20px_rgba(6,78,59,0.15)] transition-all flex items-center justify-center gap-2.5 cursor-pointer text-xs uppercase tracking-wider"
                 >
-                  <Phone className="w-4 h-4" />
-                  <span>Transmit RFQ to Atir Rais on WhatsApp</span>
-                  <ExternalLink className="w-3.5 h-3.5" />
+                  <ExternalLink className="w-4 h-4" />
+                  <span>Direct Export Desk (WhatsApp Atir Rais)</span>
                 </button>
               </div>
             </div>
           </div>
         </section>
 
-        {/* SECTION 2: Quick Bulk Order Sheet (Matrix Grid) */}
-        <section className="bg-white rounded-2xl border border-slate-200 shadow-md p-6 sm:p-8">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-6 border-b border-slate-200">
-            <div>
-              <div className="text-xs uppercase tracking-widest font-bold text-[#8B6508] flex items-center gap-1.5">
-                <Calculator className="w-4 h-4 text-[#D4AF37]" />
-                <span>Single-Page Wholesale Matrix</span>
-              </div>
-              <h3 className="text-xl sm:text-2xl font-bold font-serif text-slate-900 mt-1">
-                Quick Bulk Order Sheet (Multi-SKU Aggregator)
-              </h3>
-              <p className="text-xs text-slate-500">
-                Enter target unit quantities across multiple Moradabad SKUs to aggregate container loads and export valuations.
-              </p>
-            </div>
-
-            <div className="text-right">
-              <span className="text-xs font-semibold text-slate-500 block">Total Active Bulk Units</span>
-              <span className="text-2xl font-extrabold text-slate-900 font-mono">
-                {bulkSummary.totalUnits} Units
-              </span>
-            </div>
+        {/* SECTION 2: Multi-SKU Bulk Procurement Matrix */}
+        <section className="bg-white rounded-3xl p-8 sm:p-12 border border-slate-200/70 shadow-[0_12px_40px_rgba(0,0,0,0.04)] space-y-8">
+          <div>
+            <span className="text-[10px] tracking-[0.24em] font-semibold uppercase text-[#846328] block">
+              MULTI-PRODUCT PROCUREMENT
+            </span>
+            <h3 className="text-2xl sm:text-3xl font-serif font-normal text-slate-950 mt-1">
+              Consolidated Container Matrix
+            </h3>
+            <p className="text-xs sm:text-sm text-slate-500 font-light mt-1">
+              Assemble multiple artisanal SKUs into a single combined ocean container or air shipment.
+            </p>
           </div>
 
-          <div className="overflow-x-auto pt-4">
-            <table className="w-full text-xs text-left">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-xs border-collapse">
               <thead>
-                <tr className="bg-slate-50 text-slate-600 border-b border-slate-200">
-                  <th className="py-2.5 px-3">Item / SKU</th>
-                  <th className="py-2.5 px-3">Unit Gross Wt.</th>
-                  <th className="py-2.5 px-3">Tier 1 (20-49)</th>
-                  <th className="py-2.5 px-3">Tier 2 (50-99)</th>
-                  <th className="py-2.5 px-3">Tier 3 (100+)</th>
-                  <th className="py-2.5 px-3 text-center">Batch Order Qty</th>
-                  <th className="py-2.5 px-3 text-right">Line Valuation</th>
+                <tr className="border-b border-slate-200 text-slate-400 uppercase text-[10px] tracking-wider">
+                  <th className="py-3 px-4">Artisanal SKU</th>
+                  <th className="py-3 px-4">HSN Code</th>
+                  <th className="py-3 px-4">Gross Wt.</th>
+                  <th className="py-3 px-4">Single MRP</th>
+                  <th className="py-3 px-4 text-center">Batch Quantity</th>
+                  <th className="py-3 px-4 text-right">Applicable Slab</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
-                {products.map((prod) => {
-                  const qty = bulkQuantities[prod.id] || 0;
-                  const tier = getB2BTierRate(prod, qty);
-                  const lineTotal = qty > 0 ? tier.unitPrice * qty : 0;
+                {products.map((p) => {
+                  const qty = bulkQuantities[p.id] || 0;
                   return (
-                    <tr key={prod.id} className="hover:bg-slate-50/70 transition-colors">
-                      <td className="py-3 px-3">
-                        <div className="flex items-center gap-2.5">
-                          <div className="w-10 h-10 rounded border border-slate-200 bg-white overflow-hidden shrink-0">
-                            <ProductArtwork productId={prod.id} />
-                          </div>
-                          <div>
-                            <span className="font-bold text-slate-900 block">{prod.name}</span>
-                            <span className="text-[10px] text-slate-400 font-mono">{prod.sku}</span>
-                          </div>
+                    <tr key={p.id} className="hover:bg-slate-50/70 transition-colors">
+                      <td className="py-3.5 px-4 font-medium text-slate-900 flex items-center gap-2.5">
+                        <div className="w-8 h-8 rounded border border-slate-200 bg-white overflow-hidden shrink-0">
+                          <ProductArtwork productId={p.id} />
+                        </div>
+                        <div>
+                          <div>{p.name}</div>
+                          <span className="text-[10px] text-slate-400 font-mono">{p.sku}</span>
                         </div>
                       </td>
-                      <td className="py-3 px-3 text-slate-600 font-mono">
-                        {prod.grossWeightGrams}g
+                      <td className="py-3.5 px-4 font-mono text-slate-500">{p.hsnCode}</td>
+                      <td className="py-3.5 px-4 font-mono text-slate-600">{p.grossWeightGrams}g</td>
+                      <td className="py-3.5 px-4 text-slate-400 line-through">₹{p.mrp}</td>
+                      <td className="py-3.5 px-4 text-center">
+                        <input
+                          type="number"
+                          min={0}
+                          step={10}
+                          value={qty || ''}
+                          placeholder="0"
+                          onChange={(e) =>
+                            handleBulkQuantityChange(p.id, parseInt(e.target.value) || 0)
+                          }
+                          className="w-20 px-2 py-1 text-center font-mono border border-slate-200 rounded-full bg-white text-slate-900 focus:outline-none focus:border-[#C5A059]"
+                        />
                       </td>
-                      <td className="py-3 px-3 font-mono text-slate-700">
-                        ₹{prod.b2bSlabs.tier1.price}
-                      </td>
-                      <td className="py-3 px-3 font-mono text-slate-700">
-                        ₹{prod.b2bSlabs.tier2.price}
-                      </td>
-                      <td className="py-3 px-3 font-mono font-bold text-amber-900 bg-amber-50/50">
-                        ₹{prod.b2bSlabs.tier3.price}
-                      </td>
-                      <td className="py-3 px-3 text-center">
-                        <div className="inline-flex items-center border border-slate-300 rounded-lg overflow-hidden bg-white">
-                          <button
-                            type="button"
-                            onClick={() => handleBulkQuantityChange(prod.id, Math.max(0, qty - 10))}
-                            className="px-2.5 py-1 text-slate-600 hover:bg-slate-100 font-bold"
-                          >
-                            -
-                          </button>
-                          <input
-                            type="number"
-                            min={0}
-                            step={10}
-                            value={qty}
-                            onChange={(e) =>
-                              handleBulkQuantityChange(prod.id, parseInt(e.target.value) || 0)
-                            }
-                            className="w-16 text-center font-mono font-bold text-xs py-1 focus:outline-none"
-                          />
-                          <button
-                            type="button"
-                            onClick={() => handleBulkQuantityChange(prod.id, qty + 10)}
-                            className="px-2.5 py-1 text-slate-600 hover:bg-slate-100 font-bold"
-                          >
-                            +
-                          </button>
-                        </div>
-                      </td>
-                      <td className="py-3 px-3 text-right font-mono font-bold text-slate-900">
-                        {qty > 0 ? `₹${lineTotal.toLocaleString('en-IN')}` : '—'}
+                      <td className="py-3.5 px-4 text-right font-mono font-semibold text-slate-900">
+                        {qty >= 20 ? (
+                          <span className="text-emerald-700">Active Wholesale</span>
+                        ) : qty > 0 ? (
+                          <span className="text-amber-700">Below MOQ (20)</span>
+                        ) : (
+                          <span className="text-slate-300">—</span>
+                        )}
                       </td>
                     </tr>
                   );
@@ -593,115 +526,92 @@ export const B2BExportPortal: React.FC<B2BExportPortalProps> = ({
             </table>
           </div>
 
-          {/* Matrix Aggregate Summary Bar */}
-          <div className="mt-6 p-4 bg-slate-900 text-white rounded-xl flex flex-col md:flex-row items-center justify-between gap-4">
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs w-full md:w-auto">
+          {bulkSummary.totalUnits > 0 && (
+            <div className="p-6 bg-[#FBF9F5] rounded-2xl border border-slate-200/80 flex flex-col sm:flex-row items-center justify-between gap-4 animate-fadeIn">
               <div>
-                <span className="text-slate-400 block text-[10px]">Total Order Units</span>
-                <strong className="text-base font-mono text-[#D4AF37]">{bulkSummary.totalUnits} Units</strong>
+                <span className="text-xs font-semibold text-slate-900">
+                  Consolidated Total: {bulkSummary.totalUnits} Units
+                </span>
+                <div className="text-[11px] text-slate-500 mt-0.5">
+                  Gross Cargo Weight: <strong>{bulkSummary.totalGrossWeightKg} kg</strong> · Volume: <strong>{bulkSummary.totalCbm} m³</strong> ({bulkSummary.totalPallets} Pallets)
+                </div>
               </div>
-              <div>
-                <span className="text-slate-400 block text-[10px]">Gross Cargo Weight</span>
-                <strong className="text-base font-mono text-white">{bulkSummary.totalGrossWeightKg} KG</strong>
-              </div>
-              <div>
-                <span className="text-slate-400 block text-[10px]">Container Load</span>
-                <strong className="text-base font-mono text-white">{bulkSummary.totalCbm} m³ ({bulkSummary.totalPallets} Pallets)</strong>
-              </div>
-              <div>
-                <span className="text-slate-400 block text-[10px]">Total Multi-SKU Valuation</span>
-                <strong className="text-base font-mono text-emerald-400">₹{bulkSummary.totalInr.toLocaleString('en-IN')}</strong>
-              </div>
-            </div>
 
-            <div className="flex items-center gap-2 w-full md:w-auto justify-end">
-              <button
-                type="button"
-                onClick={handleTransmitBulkSheetWhatsApp}
-                className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg font-bold text-xs flex items-center gap-1.5 transition-colors cursor-pointer"
-              >
-                <Phone className="w-3.5 h-3.5" />
-                <span>Transmit Matrix to Atir Rais</span>
-              </button>
+              <div className="text-right">
+                <span className="text-lg font-mono font-semibold text-slate-950 block">
+                  ₹{bulkSummary.totalInr.toLocaleString('en-IN')}
+                </span>
+                <span className="text-[11px] text-slate-500">Ex-factory Moradabad valuation</span>
+              </div>
             </div>
-          </div>
+          )}
         </section>
 
-        {/* SECTION 3: Tiered Volume Pricing Matrix Cards (All SKUs) */}
-        <section className="space-y-6">
+        {/* SECTION 3: Minimalist 3-Column Pill Comparison Bar Rate Card */}
+        <section className="space-y-8">
           <div>
-            <div className="text-xs uppercase tracking-widest font-bold text-[#8B6508]">
-              Factory Rate Card
-            </div>
-            <h3 className="text-2xl font-bold font-serif text-slate-900 mt-1">
-              Tiered Volume Pricing Matrix (All 6 Signature SKUs)
+            <span className="text-[10px] tracking-[0.24em] font-semibold uppercase text-[#846328] block">
+              FACTORY RATE CARD
+            </span>
+            <h3 className="text-2xl sm:text-3xl font-serif font-normal text-slate-950 mt-1">
+              Tiered Volume Pricing Matrix (All Signature SKUs)
             </h3>
-            <p className="text-xs text-slate-500">
-              Clear wholesale slabs with transparent discounts from single-piece retail MRP. Minimum order 20 units.
+            <p className="text-xs sm:text-sm text-slate-500 font-light mt-1">
+              Transparent wholesale slabs with progressive discounts. Minimum order 20 units.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {products.map((product) => (
               <div
                 key={product.id}
-                className="bg-white rounded-xl border border-[#D4AF37]/30 hover:border-[#D4AF37] shadow-xs hover:shadow-md transition-all p-5 flex flex-col justify-between"
+                className="bg-white rounded-3xl border border-slate-200/70 hover:border-[#C5A059]/60 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_16px_40px_rgba(0,0,0,0.08)] transition-all p-6 sm:p-7 flex flex-col justify-between space-y-6"
               >
-                <div>
-                  <div className="flex gap-3 items-center mb-3">
-                    <div className="w-14 h-14 rounded-lg overflow-hidden shrink-0 border border-slate-200 bg-slate-50">
+                <div className="space-y-4">
+                  <div className="flex gap-4 items-center">
+                    <div className="w-16 h-16 rounded-2xl overflow-hidden shrink-0 border border-slate-200 bg-white">
                       <ProductArtwork productId={product.id} />
                     </div>
                     <div>
-                      <h4 className="font-bold text-slate-900 text-sm line-clamp-1">{product.name}</h4>
-                      <span className="text-[11px] text-slate-400 font-mono">{product.sku}</span>
-                      <div className="text-[10px] text-[#8B6508] font-semibold">Gross: {product.grossWeightGrams}g</div>
+                      <h4 className="font-serif text-lg font-normal text-slate-950 line-clamp-1">{product.name}</h4>
+                      <span className="text-[10px] text-slate-400 font-mono block">{product.sku}</span>
+                      <div className="text-[10px] tracking-wider uppercase text-[#846328] font-semibold mt-0.5">
+                        Gross: {product.grossWeightGrams}g Solid
+                      </div>
                     </div>
                   </div>
 
-                  {/* 3 Tier Slabs Table */}
-                  <div className="space-y-1.5 text-xs">
-                    <div className="flex items-center justify-between p-2 bg-slate-50 rounded border border-slate-100">
-                      <span className="text-slate-600 font-medium">Tier 1 (20 - 49 pcs)</span>
-                      <div className="text-right">
-                        <strong className="text-slate-900 font-mono">₹{product.b2bSlabs.tier1.price}</strong>
-                        <span className="text-[10px] text-emerald-700 block font-semibold">
-                          Save {product.b2bSlabs.tier1.discountPercent}%
-                        </span>
-                      </div>
+                  {/* Clean Minimalist 3-Column Pill Comparison Bar */}
+                  <div className="grid grid-cols-3 gap-2 text-center text-[10px] pt-1">
+                    <div className="py-2 px-1.5 rounded-2xl bg-[#FBF9F5] border border-slate-200/80">
+                      <span className="text-slate-500 block text-[9px] uppercase tracking-wider">20+ pcs</span>
+                      <strong className="text-slate-900 font-mono block text-xs mt-0.5">₹{product.b2bSlabs.tier1.price}</strong>
+                      <span className="text-emerald-700 text-[9px] block">-{product.b2bSlabs.tier1.discountPercent}%</span>
                     </div>
 
-                    <div className="flex items-center justify-between p-2 bg-amber-50/60 rounded border border-amber-200/60">
-                      <span className="text-amber-950 font-medium">Tier 2 (50 - 99 pcs)</span>
-                      <div className="text-right">
-                        <strong className="text-slate-900 font-mono">₹{product.b2bSlabs.tier2.price}</strong>
-                        <span className="text-[10px] text-emerald-700 block font-semibold">
-                          Save {product.b2bSlabs.tier2.discountPercent}%
-                        </span>
-                      </div>
+                    <div className="py-2 px-1.5 rounded-2xl bg-[#FBF9F5] border border-slate-200/80">
+                      <span className="text-slate-500 block text-[9px] uppercase tracking-wider">50+ pcs</span>
+                      <strong className="text-slate-900 font-mono block text-xs mt-0.5">₹{product.b2bSlabs.tier2.price}</strong>
+                      <span className="text-emerald-700 text-[9px] block">-{product.b2bSlabs.tier2.discountPercent}%</span>
                     </div>
 
-                    <div className="flex items-center justify-between p-2 bg-[#111827] text-white rounded">
-                      <span className="text-[#D4AF37] font-bold">Tier 3 (100+ pcs Export)</span>
-                      <div className="text-right">
-                        <strong className="text-white font-mono">₹{product.b2bSlabs.tier3.price}</strong>
-                        <span className="text-[10px] text-[#D4AF37] block font-semibold">
-                          Direct Factory ({product.b2bSlabs.tier3.discountPercent}% Off)
-                        </span>
-                      </div>
+                    <div className="py-2 px-1.5 rounded-2xl bg-slate-950 text-[#DFBA73] border border-slate-950">
+                      <span className="text-[#DFBA73] block text-[9px] uppercase tracking-wider">100+ pcs</span>
+                      <strong className="text-white font-mono block text-xs mt-0.5">₹{product.b2bSlabs.tier3.price}</strong>
+                      <span className="text-[#DFBA73] text-[9px] block">Direct</span>
                     </div>
                   </div>
                 </div>
 
-                <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
+                <div className="pt-4 border-t border-slate-100 flex items-center justify-between text-xs">
                   <span className="text-slate-400 text-[11px]">Retail MRP: ₹{product.mrp}</span>
                   <button
                     onClick={() => {
                       setSelectedProduct(product);
                       setQuantity(100);
-                      window.scrollTo({ top: 120, behavior: 'smooth' });
+                      window.scrollTo({ top: 180, behavior: 'smooth' });
                     }}
-                    className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded font-semibold text-xs transition-colors flex items-center gap-1 cursor-pointer"
+                    className="px-4 py-2 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-medium transition-colors flex items-center gap-1.5 cursor-pointer"
                   >
                     <span>Configure RFQ</span>
                     <ArrowRight className="w-3 h-3" />

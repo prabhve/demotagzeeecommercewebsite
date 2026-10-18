@@ -195,7 +195,7 @@ export default function App() {
   const totalCartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
 
   return (
-    <div className="min-h-screen bg-white text-slate-900 flex flex-col font-sans selection:bg-[#D4AF37]/30 selection:text-slate-950">
+    <div className="min-h-screen bg-white text-slate-900 flex flex-col font-sans selection:bg-[#DFBA73]/30 selection:text-slate-950">
       {/* Sticky Navbar with 3-Way Live Workspace Switcher & User Account / Wishlist */}
       <Navbar
         activeTab={activeTab}
@@ -220,29 +220,29 @@ export default function App() {
 
       {/* Recent Order Toast Notification Bar */}
       {recentOrderSuccess && (
-        <div className="bg-emerald-900 text-white px-4 py-3 border-b border-emerald-700 shadow-md animate-fadeIn">
+        <div className="bg-[#0F172A] text-white px-6 py-3.5 border-b border-slate-800 shadow-md animate-fadeIn">
           <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
             <div className="flex items-center gap-2">
-              <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+              <CheckCircle2 className="w-4 h-4 text-[#DFBA73] shrink-0" />
               <span>
                 Order <strong>{recentOrderSuccess.id}</strong> confirmed! Payment verified via {recentOrderSuccess.paymentMethod}.
               </span>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2.5">
               <button
                 onClick={() => {
                   setActiveTaxInvoiceOrder(recentOrderSuccess);
                 }}
-                className="px-2.5 py-1 bg-emerald-800 hover:bg-emerald-700 rounded font-semibold text-white flex items-center gap-1 cursor-pointer"
+                className="px-3 py-1 bg-slate-800 hover:bg-slate-700 rounded-full font-medium text-white flex items-center gap-1.5 cursor-pointer border border-slate-700"
               >
-                <FileText className="w-3.5 h-3.5 text-amber-300" />
+                <FileText className="w-3.5 h-3.5 text-[#DFBA73]" />
                 <span>View Tax Invoice</span>
               </button>
               <button
                 onClick={() => {
                   setActiveShippingLabelOrder(recentOrderSuccess);
                 }}
-                className="px-2.5 py-1 bg-[#D4AF37] hover:bg-amber-400 text-slate-950 rounded font-bold flex items-center gap-1 cursor-pointer"
+                className="px-3.5 py-1 bg-[#C5A059] hover:bg-[#DFBA73] text-slate-950 rounded-full font-semibold flex items-center gap-1.5 cursor-pointer transition-colors"
               >
                 <Barcode className="w-3.5 h-3.5" />
                 <span>Print Shipping Label</span>
@@ -252,14 +252,14 @@ export default function App() {
                   setActiveTab('admin');
                   setRecentOrderSuccess(null);
                 }}
-                className="px-2.5 py-1 bg-slate-900 hover:bg-slate-800 text-slate-200 rounded font-medium flex items-center gap-1 cursor-pointer"
+                className="px-3 py-1 bg-slate-900 hover:bg-slate-800 text-slate-300 rounded-full font-medium flex items-center gap-1 cursor-pointer border border-slate-800"
               >
                 <span>Open in Admin</span>
                 <ArrowRight className="w-3 h-3" />
               </button>
               <button
                 onClick={() => setRecentOrderSuccess(null)}
-                className="p-1 text-emerald-300 hover:text-white"
+                className="p-1 text-slate-400 hover:text-white"
                 title="Dismiss"
               >
                 <X className="w-4 h-4" />

@@ -97,16 +97,19 @@ export const ProductReviewsSection: React.FC<ProductReviewsSectionProps> = ({
   };
 
   return (
-    <div className="space-y-6 pt-6 border-t border-slate-200">
+    <div className="space-y-8 pt-8 border-t border-slate-200/80">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h3 className="text-lg font-bold text-slate-900 font-serif flex items-center gap-2">
+          <span className="text-[10px] tracking-[0.24em] font-semibold uppercase text-[#846328] block">
+            PATRON TESTIMONIALS &amp; RATINGS
+          </span>
+          <h3 className="text-2xl sm:text-3xl font-serif font-normal text-slate-950 mt-1 flex items-center gap-3">
             <span>Customer Reviews &amp; Provenance Ratings</span>
-            <span className="text-xs font-sans bg-amber-100 text-amber-900 px-2 py-0.5 rounded-full font-bold">
+            <span className="text-xs font-sans bg-[#FBF9F5] text-[#846328] px-3 py-1 rounded-full font-medium border border-slate-200/80">
               {stats.reviewCount} Verified Ratings
             </span>
           </h3>
-          <p className="text-xs text-slate-500 mt-0.5">
+          <p className="text-xs text-slate-500 font-light mt-1">
             Real feedback from connoisseurs and interior designers across India and global export destinations.
           </p>
         </div>
@@ -114,44 +117,44 @@ export const ProductReviewsSection: React.FC<ProductReviewsSectionProps> = ({
         {!isWritingReview && (
           <button
             onClick={() => setIsWritingReview(true)}
-            className="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-lg text-xs font-bold transition-all shadow-xs flex items-center gap-1.5 cursor-pointer self-start sm:self-auto"
+            className="px-5 py-2.5 bg-slate-950 hover:bg-[#846328] text-white rounded-full text-xs font-medium transition-all shadow-xs flex items-center gap-2 cursor-pointer self-start sm:self-auto uppercase tracking-wider"
           >
-            <PenTool className="w-3.5 h-3.5 text-[#D4AF37]" />
+            <PenTool className="w-3.5 h-3.5 text-[#DFBA73]" />
             <span>Write a Review</span>
           </button>
         )}
       </div>
 
       {/* Rating Score Breakdown Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-12 gap-6 bg-slate-50/70 p-5 rounded-2xl border border-slate-200">
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-8 bg-[#FBF9F5] p-6 sm:p-8 rounded-3xl border border-slate-200/70">
         {/* Left: Overall Score Big Metric */}
-        <div className="md:col-span-4 flex flex-col items-center justify-center p-4 bg-white rounded-xl border border-slate-200/80 text-center shadow-xs">
-          <div className="text-4xl font-extrabold text-slate-900 font-serif tabular-nums">
+        <div className="md:col-span-4 flex flex-col items-center justify-center p-6 bg-white rounded-2xl border border-slate-200/80 text-center shadow-[0_4px_16px_rgba(0,0,0,0.02)] space-y-2">
+          <div className="text-5xl font-serif font-normal text-slate-950 tabular-nums">
             {stats.averageRating > 0 ? stats.averageRating.toFixed(1) : '5.0'}
           </div>
-          <div className="flex items-center gap-1 text-amber-500 my-1.5">
+          <div className="flex items-center gap-1 text-[#C5A059] my-1">
             {[1, 2, 3, 4, 5].map((star) => (
               <Star
                 key={star}
                 className={`w-4 h-4 ${
                   star <= Math.round(stats.averageRating)
-                    ? 'fill-current'
-                    : 'text-slate-300'
+                    ? 'fill-current text-[#C5A059]'
+                    : 'text-slate-200'
                 }`}
               />
             ))}
           </div>
-          <span className="text-xs text-slate-600 font-semibold">
+          <span className="text-xs text-slate-600 font-medium">
             Based on {stats.reviewCount} artisanal reviews
           </span>
-          <span className="text-[10px] text-emerald-700 font-medium mt-1 flex items-center gap-1">
-            <CheckCircle2 className="w-3 h-3" />
+          <span className="text-[11px] text-emerald-800 font-normal flex items-center gap-1">
+            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
             100% Moradabad GI Certified buyers
           </span>
         </div>
 
         {/* Right: 5-Star Distribution Bars */}
-        <div className="md:col-span-8 flex flex-col justify-center space-y-2">
+        <div className="md:col-span-8 flex flex-col justify-center space-y-2.5">
           {[5, 4, 3, 2, 1].map((star) => {
             const bar = stats.distribution[star] || { count: 0, percentage: 0 };
             const isSelected = starFilter === star;
@@ -160,18 +163,18 @@ export const ProductReviewsSection: React.FC<ProductReviewsSectionProps> = ({
                 key={star}
                 type="button"
                 onClick={() => setStarFilter(isSelected ? undefined : star)}
-                className={`w-full flex items-center gap-2 text-xs transition-colors rounded p-1 cursor-pointer text-left ${
-                  isSelected ? 'bg-amber-100/60 font-bold' : 'hover:bg-slate-100'
+                className={`w-full flex items-center gap-3 text-xs transition-colors rounded-full px-3 py-1.5 cursor-pointer text-left ${
+                  isSelected ? 'bg-white shadow-xs font-semibold' : 'hover:bg-white/60'
                 }`}
                 title={`Filter by ${star} stars`}
               >
-                <span className="w-12 text-slate-700 font-semibold flex items-center gap-1 shrink-0">
+                <span className="w-12 text-slate-700 font-medium flex items-center gap-1 shrink-0">
                   <span>{star}</span>
-                  <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
+                  <Star className="w-3 h-3 fill-[#C5A059] text-[#C5A059]" />
                 </span>
-                <div className="flex-1 h-2 bg-slate-200 rounded-full overflow-hidden">
+                <div className="flex-1 h-2 bg-slate-200/70 rounded-full overflow-hidden">
                   <div
-                    className="h-full bg-linear-to-r from-[#D4AF37] to-[#AA7C11] rounded-full transition-all duration-300"
+                    className="h-full bg-linear-to-r from-[#DFBA73] to-[#C5A059] rounded-full transition-all duration-300"
                     style={{ width: `${bar.percentage}%` }}
                   />
                 </div>
@@ -188,13 +191,13 @@ export const ProductReviewsSection: React.FC<ProductReviewsSectionProps> = ({
       {isWritingReview && (
         <form
           onSubmit={handleSubmitReview}
-          className="bg-white p-5 rounded-2xl border-2 border-[#D4AF37]/50 shadow-md space-y-4 animate-fadeIn"
+          className="bg-white p-6 sm:p-7 rounded-3xl border border-[#C5A059]/40 shadow-[0_12px_36px_rgba(0,0,0,0.04)] space-y-5 animate-fadeIn"
         >
           <div className="flex items-center justify-between border-b border-slate-100 pb-3">
             <div className="flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-[#D4AF37]" />
-              <h4 className="font-bold text-slate-900 text-sm font-serif">
-                Write Your Review &amp; Experience
+              <Sparkles className="w-4 h-4 text-[#C5A059]" />
+              <h4 className="font-serif text-lg text-slate-950 font-normal">
+                Share Your Connoisseur Experience
               </h4>
             </div>
             <button
@@ -248,7 +251,7 @@ export const ProductReviewsSection: React.FC<ProductReviewsSectionProps> = ({
                 value={authorName}
                 onChange={(e) => setAuthorName(e.target.value)}
                 placeholder="Full Name"
-                className="w-full px-3 py-2 text-xs border border-slate-300 rounded-lg focus:outline-none focus:border-[#D4AF37]"
+                className="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl focus:outline-none focus:border-[#C5A059]"
               />
             </div>
             <div>
@@ -258,7 +261,7 @@ export const ProductReviewsSection: React.FC<ProductReviewsSectionProps> = ({
                 value={authorEmail}
                 onChange={(e) => setAuthorEmail(e.target.value)}
                 placeholder="email@domain.com"
-                className="w-full px-3 py-2 text-xs border border-slate-300 rounded-lg focus:outline-none focus:border-[#D4AF37]"
+                className="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl focus:outline-none focus:border-[#C5A059]"
               />
             </div>
           </div>
@@ -273,7 +276,7 @@ export const ProductReviewsSection: React.FC<ProductReviewsSectionProps> = ({
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="e.g. Magnificent hammered texture and royal finish"
-              className="w-full px-3 py-2 text-xs border border-slate-300 rounded-lg focus:outline-none focus:border-[#D4AF37]"
+              className="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl focus:outline-none focus:border-[#C5A059]"
             />
           </div>
 
@@ -287,29 +290,29 @@ export const ProductReviewsSection: React.FC<ProductReviewsSectionProps> = ({
               value={comment}
               onChange={(e) => setComment(e.target.value)}
               placeholder="Describe the brass weight, visual presentation, water floral arrangement, packaging, or finish durability..."
-              className="w-full px-3 py-2 text-xs border border-slate-300 rounded-lg focus:outline-none focus:border-[#D4AF37]"
+              className="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl focus:outline-none focus:border-[#C5A059]"
             />
           </div>
 
           {formError && <p className="text-xs text-red-600">{formError}</p>}
 
           {submittedSuccess ? (
-            <div className="p-3 bg-emerald-50 text-emerald-800 rounded-lg text-xs font-semibold flex items-center gap-2">
+            <div className="p-3.5 bg-emerald-50 text-emerald-800 rounded-xl text-xs font-semibold flex items-center gap-2 border border-emerald-100">
               <Check className="w-4 h-4 text-emerald-600" />
               <span>Thank you! Your verified artisanal review has been published.</span>
             </div>
           ) : (
-            <div className="flex items-center justify-end gap-2 pt-2">
+            <div className="flex items-center justify-end gap-3 pt-2">
               <button
                 type="button"
                 onClick={() => setIsWritingReview(false)}
-                className="px-4 py-2 border border-slate-300 rounded-lg text-xs font-semibold text-slate-700 hover:bg-slate-50 cursor-pointer"
+                className="px-5 py-2.5 border border-slate-200 rounded-full text-xs font-semibold text-slate-700 hover:bg-slate-50 cursor-pointer"
               >
                 Cancel
               </button>
               <button
                 type="submit"
-                className="px-5 py-2 bg-linear-to-r from-[#F5D061] to-[#D4AF37] hover:from-[#FFE285] hover:to-[#DFB73E] text-slate-950 font-bold rounded-lg text-xs shadow-xs transition-all cursor-pointer"
+                className="px-6 py-2.5 bg-slate-950 hover:bg-[#846328] text-white font-medium rounded-full text-xs uppercase tracking-wider shadow-xs transition-all cursor-pointer"
               >
                 Submit Review
               </button>
@@ -326,7 +329,7 @@ export const ProductReviewsSection: React.FC<ProductReviewsSectionProps> = ({
           {starFilter && (
             <button
               onClick={() => setStarFilter(undefined)}
-              className="text-[#9E7A1C] font-semibold hover:underline text-[11px] ml-1"
+              className="text-[#846328] font-semibold hover:underline text-[11px] ml-1"
             >
               (Clear {starFilter}-star filter)
             </button>
@@ -338,7 +341,7 @@ export const ProductReviewsSection: React.FC<ProductReviewsSectionProps> = ({
           <select
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value as any)}
-            className="px-2.5 py-1.5 bg-slate-50 border border-slate-300 rounded-lg text-xs text-slate-800 font-semibold focus:outline-none focus:border-[#D4AF37]"
+            className="px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs text-slate-800 font-semibold focus:outline-none focus:border-[#C5A059]"
           >
             <option value="recent">Most Recent</option>
             <option value="highest">Highest Rating</option>

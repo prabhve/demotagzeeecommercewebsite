@@ -17,20 +17,20 @@ export const ProductArtwork: React.FC<ProductArtworkProps> = ({
         zoom ? 'scale-110' : 'group-hover:scale-105'
       }`}
       style={{
-        background: 'radial-gradient(circle at 50% 40%, #FFFDF8 0%, #F8F5EE 60%, #ECE6D8 100%)',
+        background: 'radial-gradient(circle at 50% 32%, #FFFFFF 0%, #FAF8F4 55%, #F1EAE0 100%)',
       }}
     >
-      {/* Background subtle mandala halo */}
+      {/* Background subtle museum mandala halo */}
       <svg
         className="absolute inset-0 w-full h-full opacity-10 pointer-events-none"
         viewBox="0 0 200 200"
         xmlns="http://www.w3.org/2000/svg"
       >
-        <circle cx="100" cy="100" r="80" fill="none" stroke="#D4AF37" strokeWidth="0.8" strokeDasharray="3 3" />
-        <circle cx="100" cy="100" r="60" fill="none" stroke="#C5A059" strokeWidth="0.6" />
-        <circle cx="100" cy="100" r="40" fill="none" stroke="#D4AF37" strokeWidth="0.5" strokeDasharray="2 4" />
+        <circle cx="100" cy="100" r="82" fill="none" stroke="#C5A059" strokeWidth="0.75" strokeDasharray="3 3" />
+        <circle cx="100" cy="100" r="62" fill="none" stroke="#DFBA73" strokeWidth="0.5" />
+        <circle cx="100" cy="100" r="42" fill="none" stroke="#C5A059" strokeWidth="0.5" strokeDasharray="2 4" />
         <path
-          d="M100 20 L100 180 M20 100 L180 100 M43 43 L157 157 M43 157 L157 43"
+          d="M100 18 L100 182 M18 100 L182 100 M42 42 L158 158 M42 158 L158 42"
           stroke="#C5A059"
           strokeWidth="0.3"
           strokeDasharray="4 4"
@@ -48,9 +48,9 @@ export const ProductArtwork: React.FC<ProductArtworkProps> = ({
 
       {/* Luxury Metallic Floor Reflection Shadow */}
       <div
-        className="absolute bottom-4 w-3/4 h-4 rounded-full opacity-35 blur-md pointer-events-none"
+        className="absolute bottom-3 w-4/5 h-4 rounded-full opacity-25 blur-md pointer-events-none"
         style={{
-          background: 'radial-gradient(ellipse at center, rgba(160, 120, 40, 0.5) 0%, rgba(200, 160, 60, 0.1) 60%, transparent 100%)',
+          background: 'radial-gradient(ellipse at center, rgba(132, 99, 40, 0.45) 0%, rgba(197, 160, 89, 0.12) 60%, transparent 100%)',
         }}
       />
     </div>
@@ -63,11 +63,11 @@ function UrliVectorArtwork() {
     <svg viewBox="0 0 400 320" className="w-full h-full max-h-[300px] drop-shadow-xl" xmlns="http://www.w3.org/2000/svg">
       <defs>
         <radialGradient id="brassOuterGold" cx="45%" cy="35%" r="65%">
-          <stop offset="0%" stopColor="#FFF1B8" />
-          <stop offset="25%" stopColor="#F5D061" />
-          <stop offset="60%" stopColor="#D4AF37" />
-          <stop offset="85%" stopColor="#AA7C11" />
-          <stop offset="100%" stopColor="#6E4F06" />
+          <stop offset="0%" stopColor="#FFF7DE" />
+          <stop offset="25%" stopColor="#DFBA73" />
+          <stop offset="60%" stopColor="#C5A059" />
+          <stop offset="85%" stopColor="#967226" />
+          <stop offset="100%" stopColor="#5C4210" />
         </radialGradient>
         <radialGradient id="brassWaterDepth" cx="50%" cy="40%" r="55%">
           <stop offset="0%" stopColor="#E2F1F8" stopOpacity="0.9" />
@@ -139,7 +139,7 @@ function UrliVectorArtwork() {
 
       {/* Center Floating Brass Diya with Flame */}
       <ellipse cx="200" cy="153" rx="18" ry="7" fill="#8B6508" />
-      <ellipse cx="200" cy="151" rx="16" ry="6" fill="#D4AF37" />
+      <ellipse cx="200" cy="151" rx="16" ry="6" fill="#DFBA73" />
       {/* Flame & Glow */}
       <circle cx="200" cy="144" r="15" fill="url(#diyaGlow)" opacity="0.75" />
       <path d="M197 149 C 195 142, 200 134, 200 132 C 200 134, 205 142, 203 149 Z" fill="#FFEAA7" />
@@ -203,7 +203,7 @@ function PeacockLampVectorArtwork() {
         strokeWidth="1.2"
       />
       {/* Crown / Crest Feather Plume (Kalgi) */}
-      <path d="M174 74 L184 60 M174 74 L180 56 M174 74 L174 54" stroke="#D4AF37" strokeWidth="2" strokeLinecap="round" />
+      <path d="M174 74 L184 60 M174 74 L180 56 M174 74 L174 54" stroke="#DFBA73" strokeWidth="2" strokeLinecap="round" />
       <circle cx="184" cy="59" r="2.5" fill="#FFEAA7" />
       <circle cx="180" cy="55" r="2.5" fill="#FFEAA7" />
       <circle cx="174" cy="53" r="2.5" fill="#FFEAA7" />
@@ -224,7 +224,7 @@ function PeacockLampVectorArtwork() {
         <ellipse cx="185" cy="95" rx="5" ry="10" transform="rotate(30 185 95)" />
         <ellipse cx="160" cy="90" rx="5" ry="10" transform="rotate(-15 160 90)" />
       </g>
-      <g fill="#D4AF37">
+      <g fill="#DFBA73">
         <circle cx="150" cy="65" r="3" />
         <circle cx="170" cy="48" r="3" />
         <circle cx="195" cy="58" r="3" />
@@ -247,13 +247,13 @@ function CutleryVectorArtwork() {
         </linearGradient>
         <linearGradient id="brassStem" x1="0%" y1="0%" x2="100%" y2="100%">
           <stop offset="0%" stopColor="#FFF2B2" />
-          <stop offset="40%" stopColor="#D4AF37" />
+          <stop offset="40%" stopColor="#DFBA73" />
           <stop offset="100%" stopColor="#8A6409" />
         </linearGradient>
       </defs>
 
       {/* Velvet Presentation Cushion Base */}
-      <rect x="30" y="40" width="320" height="240" rx="12" fill="#1C1427" stroke="#D4AF37" strokeWidth="1" strokeOpacity="0.4" />
+      <rect x="30" y="40" width="320" height="240" rx="12" fill="#1C1427" stroke="#DFBA73" strokeWidth="1" strokeOpacity="0.4" />
       <rect x="40" y="50" width="300" height="220" rx="8" fill="#2A1B3D" opacity="0.6" />
 
       {/* Item 1: Royal Dinner Spoon */}
@@ -321,7 +321,7 @@ function PlanterVectorArtwork() {
         </linearGradient>
         <linearGradient id="goldLeg" x1="0%" y1="0%" x2="100%" y2="100%">
           <stop offset="0%" stopColor="#FFE082" />
-          <stop offset="50%" stopColor="#D4AF37" />
+          <stop offset="50%" stopColor="#DFBA73" />
           <stop offset="100%" stopColor="#8D6E18" />
         </linearGradient>
       </defs>
@@ -373,7 +373,7 @@ function MirrorVectorArtwork() {
       <defs>
         <radialGradient id="goldLeafRim" cx="50%" cy="50%" r="50%">
           <stop offset="55%" stopColor="#FFF2B2" />
-          <stop offset="70%" stopColor="#D4AF37" />
+          <stop offset="70%" stopColor="#DFBA73" />
           <stop offset="85%" stopColor="#AA821C" />
           <stop offset="98%" stopColor="#5E4306" />
         </radialGradient>
@@ -389,7 +389,7 @@ function MirrorVectorArtwork() {
       <circle cx="180" cy="180" r="150" fill="url(#goldLeafRim)" stroke="#8A6409" strokeWidth="2" />
 
       {/* Repoussé Chiseled Mughal Floral Petal Ring (16 Petals) */}
-      <g stroke="#7A5605" strokeWidth="1" fill="#D4AF37" opacity="0.75">
+      <g stroke="#7A5605" strokeWidth="1" fill="#DFBA73" opacity="0.75">
         {[0, 22.5, 45, 67.5, 90, 112.5, 135, 157.5, 180, 202.5, 225, 247.5, 270, 292.5, 315, 337.5].map((angle, i) => (
           <ellipse
             key={i}
@@ -429,7 +429,7 @@ function LanternVectorArtwork() {
       <defs>
         <linearGradient id="moroccanBrass" x1="0%" y1="0%" x2="100%" y2="100%">
           <stop offset="0%" stopColor="#FFF2B2" />
-          <stop offset="30%" stopColor="#D4AF37" />
+          <stop offset="30%" stopColor="#DFBA73" />
           <stop offset="70%" stopColor="#8A6409" />
           <stop offset="100%" stopColor="#4A3403" />
         </linearGradient>
@@ -493,7 +493,7 @@ function DhokraStatuetteVectorArtwork() {
         <linearGradient id="dhokraBronze" x1="0%" y1="0%" x2="100%" y2="100%">
           <stop offset="0%" stopColor="#4A3B2C" />
           <stop offset="25%" stopColor="#8C6D3B" />
-          <stop offset="50%" stopColor="#D4AF37" />
+          <stop offset="50%" stopColor="#DFBA73" />
           <stop offset="75%" stopColor="#6E5028" />
           <stop offset="100%" stopColor="#2E2419" />
         </linearGradient>

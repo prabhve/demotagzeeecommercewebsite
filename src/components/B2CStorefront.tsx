@@ -1,24 +1,24 @@
 import React, { useState } from 'react';
 import {
   Sparkles,
-  ArrowRight,
   ShieldCheck,
-  CheckCircle2,
-  ZoomIn,
+  Award,
   Truck,
   RotateCcw,
-  Star,
-  Flame,
-  Award,
   Phone,
-  Mail,
+  ArrowRight,
+  ZoomIn,
+  Star,
   MapPin,
+  Mail,
   ExternalLink,
+  Flame,
+  CheckCircle2,
   Heart,
   Building2,
 } from 'lucide-react';
-import type { Currency, Product } from '../types/index.ts';
-import { BRAND_INFO } from '../data/catalog.ts';
+import type { Product, Currency } from '../types/index.ts';
+import { BRAND_INFO, INITIAL_REVIEWS } from '../data/catalog.ts';
 import { formatCurrency, calculateDiscountPercent } from '../utils/pricing.ts';
 import { ProductArtwork } from './ProductArtwork.tsx';
 
@@ -28,7 +28,7 @@ interface B2CStorefrontProps {
   onAddToCart: (product: Product, quantity?: number) => void;
   onSelectProduct: (product: Product) => void;
   onSwitchToB2B: () => void;
-  searchQuery: string;
+  searchQuery?: string;
   savedItemIds?: string[];
   onToggleWishlist?: (productId: string) => void;
 }
@@ -39,158 +39,185 @@ export const B2CStorefront: React.FC<B2CStorefrontProps> = ({
   onAddToCart,
   onSelectProduct,
   onSwitchToB2B,
-  searchQuery,
+  searchQuery = '',
   savedItemIds = [],
-  onToggleWishlist,
+  onToggleWishlist = () => {},
 }) => {
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
-  const [heroZoom, setHeroZoom] = useState(false);
-
-  // Filter products by category and search
-  const filteredProducts = products.filter((p) => {
-    const matchesCategory = selectedCategory === 'All' || p.category === selectedCategory;
-    const matchesSearch =
-      searchQuery === '' ||
-      p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      p.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      p.tags.some((t) => t.toLowerCase().includes(searchQuery.toLowerCase()));
-    return matchesCategory && matchesSearch;
-  });
+  const [heroZoom, setHeroZoom] = useState<boolean>(false);
 
   const categories = ['All', 'Metal Handicrafts', 'Home & Kitchen', 'Garden Decor', 'Ornaments'];
 
-  const heroUrli = products.find((p) => p.id.includes('urli')) || products[0];
+  const filteredProducts = products.filter((p) => {
+    const matchesCat = selectedCategory === 'All' || p.category === selectedCategory;
+    const matchesSearch =
+      !searchQuery ||
+      p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      p.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      p.category.toLowerCase().includes(searchQuery.toLowerCase());
+    return matchesCat && matchesSearch;
+  });
+
+  const heroUrli = products[0] || {
+    id: 'tag-urli-01',
+    name: 'Royal Hand-Hammered Brass Urli Bowl',
+    offerPrice: 1850,
+    mrp: 2999,
+    finish: 'Mirror Gold Hand-Chiseled with Clear High-Temp Protective Lacquer',
+    pureBrassPurity: 'Certified 99.4% Metallurgical Purity',
+    grossWeightGrams: 2450,
+  };
 
   return (
-    <div className="bg-white text-slate-900 min-h-screen">
-      {/* SECTION: Hero Banner (Editorial 2-Column Split) */}
-      <section className="relative overflow-hidden bg-radial from-[#FFFDF7] via-[#FAF7F0] to-[#F5EFE0] border-b border-[#D4AF37]/25 py-8 sm:py-12 md:py-16">
-        {/* Subtle Watermark Mandala Motif */}
-        <div className="absolute inset-0 flex items-center justify-center opacity-3 pointer-events-none">
-          <svg viewBox="0 0 600 600" className="w-[800px] h-[800px] text-amber-900">
-            <circle cx="300" cy="300" r="280" fill="none" stroke="currentColor" strokeWidth="4" />
-            <circle cx="300" cy="300" r="220" fill="none" stroke="currentColor" strokeWidth="2" strokeDasharray="10 8" />
-            <circle cx="300" cy="300" r="150" fill="none" stroke="currentColor" strokeWidth="3" />
-            <polygon points="300,50 350,250 550,300 350,350 300,550 250,350 50,300 250,250" fill="none" stroke="currentColor" strokeWidth="2" />
+    <div className="bg-white text-slate-900 overflow-x-hidden selection:bg-[#DFBA73]/30">
+      {/* HERO SECTION: EDITORIAL ATELIER GALLERY */}
+      <section className="relative bg-gradient-to-b from-[#FFFFFF] via-[#FDFBF7] to-[#FBF9F5] py-24 sm:py-32 border-b border-slate-200/60 overflow-hidden">
+        {/* Subtle Watermark: Royal geometric mandala motif with 3% opacity */}
+        <div
+          aria-hidden="true"
+          className="absolute inset-0 pointer-events-none flex items-center justify-center opacity-[0.035]"
+        >
+          <svg viewBox="0 0 800 800" className="w-[850px] h-[850px] text-[#C5A059]" fill="none" stroke="currentColor">
+            <circle cx="400" cy="400" r="380" strokeWidth="1.5" />
+            <circle cx="400" cy="400" r="300" strokeWidth="1" strokeDasharray="6 6" />
+            <circle cx="400" cy="400" r="220" strokeWidth="1.5" />
+            <circle cx="400" cy="400" r="140" strokeWidth="1" strokeDasharray="4 4" />
+            <polygon points="400,20 440,260 680,120 540,340 780,400 540,460 680,680 440,540 400,780 360,540 120,680 260,460 20,400 260,340 120,120 360,260" strokeWidth="1" />
+            <circle cx="400" cy="400" r="40" strokeWidth="2" />
           </svg>
         </div>
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 relative z-10">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
-            {/* Left Column: Brand Copy & CTAs */}
-            <div className="lg:col-span-7 space-y-5">
-              <div className="flex items-center gap-2 text-[11px] sm:text-xs font-semibold text-[#8B6508] tracking-wider uppercase">
-                <span className="w-5 h-px bg-[#D4AF37]" />
-                <span>Royal Moradabad Heritage Atelier</span>
-                <span className="w-5 h-px bg-[#D4AF37]" />
+        <div className="max-w-7xl mx-auto px-6 sm:px-12 relative z-10">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
+            {/* Left Column: Editorial Provenance & Headlines */}
+            <div className="lg:col-span-7 space-y-8">
+              <div className="space-y-4">
+                <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/90 border border-[#C5A059]/40 shadow-[0_2px_10px_rgba(197,160,89,0.08)]">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#C5A059]" />
+                  <span className="text-[10px] tracking-[0.22em] font-semibold uppercase text-[#846328]">
+                    EST. MORADABAD • ROYAL BRASSFOUNDRY
+                  </span>
+                </div>
+
+                <h1 className="text-4xl sm:text-5xl lg:text-6xl font-serif font-normal text-slate-950 leading-[1.12] tracking-tight">
+                  Artisanal Brassware, <br className="hidden sm:inline" />
+                  <span className="italic text-[#846328] font-normal">Cast for Generational Living.</span>
+                </h1>
+
+                <p className="text-base sm:text-lg text-slate-600 font-light leading-relaxed max-w-2xl pt-2">
+                  Hand-hammered by 3rd-generation master artisans using 100% solid virgin brass and food-safe alloy purity. Experience sacred deepaks, banquet cutlery, fluted planters, and antique heirlooms directly from the historic crucible of Moradabad.
+                </p>
               </div>
 
-              <h1 className="text-2xl sm:text-4xl md:text-5xl font-extrabold text-slate-900 tracking-tight font-serif leading-[1.2]">
-                The Grandeur of <span className="text-[#9E7A1C] underline decoration-[#D4AF37]/40">Moradabad Metal Craftsmanship</span> in Modern Living Spaces.
-              </h1>
-
-              <p className="text-base sm:text-lg text-slate-600 max-w-xl leading-relaxed">
-                Hand-hammered by 3rd-generation master artisans using 100% solid virgin brass and food-safe alloy purity. Experience sacred deepaks, banquet cutlery, fluted planters, and antique heirlooms.
-              </p>
-
-              {/* Action Buttons */}
-              <div className="flex flex-wrap items-center gap-3 pt-2">
-                <a
-                  href="#catalog"
-                  className="px-6 py-3.5 bg-linear-to-r from-[#D4AF37] to-[#C5A059] hover:from-[#E5C158] hover:to-[#D4AE6A] text-slate-950 font-bold rounded-lg shadow-md hover:shadow-lg transition-all flex items-center gap-2 group cursor-pointer text-sm"
+              {/* Action Buttons with Champagne Hairline Borders */}
+              <div className="flex flex-wrap items-center gap-4 pt-2">
+                <button
+                  onClick={() => {
+                    const el = document.getElementById('curated-collection');
+                    el?.scrollIntoView({ behavior: 'smooth' });
+                  }}
+                  className="px-7 py-4 rounded-full bg-slate-950 hover:bg-[#846328] text-white text-xs font-semibold tracking-wider uppercase transition-all duration-300 shadow-[0_4px_20px_rgba(15,23,42,0.15)] flex items-center gap-2.5 cursor-pointer group"
                 >
-                  <Sparkles className="w-4 h-4 text-slate-950" />
-                  <span>Shop Retail Collection</span>
+                  <span>Explore Retail Atelier</span>
                   <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                </a>
+                </button>
 
                 <button
                   onClick={onSwitchToB2B}
-                  className="px-6 py-3.5 bg-white text-slate-900 hover:bg-slate-50 border-2 border-[#D4AF37] rounded-lg font-bold text-sm shadow-xs transition-all flex items-center gap-2 cursor-pointer"
+                  className="px-7 py-4 rounded-full bg-white hover:bg-[#FFFDF8] text-slate-900 hover:text-[#846328] text-xs font-semibold tracking-wider uppercase border border-[#C5A059]/50 transition-all duration-300 shadow-[0_2px_10px_rgba(0,0,0,0.03)] flex items-center gap-2 cursor-pointer"
                 >
-                  <Building2 className="w-4 h-4 text-[#9E7A1C]" />
-                  <span>B2B Wholesale Catalog</span>
-                  <span className="text-xs font-semibold text-[#9E7A1C]">(MOQ 20+)</span>
+                  <Building2 className="w-4 h-4 text-[#846328]" />
+                  <span>Wholesale &amp; Export (MOQ 20+)</span>
                 </button>
               </div>
 
-              {/* Credibility & Trust Markers Strip */}
-              <div className="grid grid-cols-3 gap-3 pt-4 border-t border-[#D4AF37]/30 text-xs text-slate-700">
-                <div className="flex items-center gap-2">
-                  <Award className="w-5 h-5 text-[#9E7A1C] shrink-0" />
-                  <div>
-                    <span className="font-bold block text-slate-900">100% Solid Brass</span>
-                    <span className="text-slate-500">Virgin Ingot Metallurgy</span>
+              {/* Museum Credibility & Trust Markers Strip */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 pt-6 border-t border-slate-200/70 text-xs text-slate-600">
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2 text-slate-900 font-medium">
+                    <Award className="w-4 h-4 text-[#C5A059] shrink-0" />
+                    <span>100% Solid Brass</span>
                   </div>
+                  <p className="text-[11px] text-slate-500 font-normal pl-6">
+                    Virgin Ingot Metallurgy, Certified Lead-Free
+                  </p>
                 </div>
-                <div className="flex items-center gap-2">
-                  <ShieldCheck className="w-5 h-5 text-[#9E7A1C] shrink-0" />
-                  <div>
-                    <span className="font-bold block text-slate-900">Anti-Tarnish Seal</span>
-                    <span className="text-slate-500">5-Year Radiant Glow</span>
+
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2 text-slate-900 font-medium">
+                    <ShieldCheck className="w-4 h-4 text-[#C5A059] shrink-0" />
+                    <span>Anti-Tarnish Seal</span>
                   </div>
+                  <p className="text-[11px] text-slate-500 font-normal pl-6">
+                    5-Year Baked Radiant Protective Glow
+                  </p>
                 </div>
-                <div className="flex items-center gap-2">
-                  <Sparkles className="w-5 h-5 text-[#9E7A1C] shrink-0" />
-                  <div>
-                    <span className="font-bold block text-slate-900">Direct Foundry</span>
-                    <span className="text-slate-500">Jigar Colony Moradabad</span>
+
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2 text-slate-900 font-medium">
+                    <Sparkles className="w-4 h-4 text-[#C5A059] shrink-0" />
+                    <span>Direct Foundry</span>
                   </div>
+                  <p className="text-[11px] text-slate-500 font-normal pl-6">
+                    Jigar Colony Moradabad Artisans
+                  </p>
                 </div>
               </div>
             </div>
 
-            {/* Right Column: Hero High-Resolution Interactive Frame */}
+            {/* Right Column: Museum Plinth Frame with Docked Purity Seal */}
             <div className="lg:col-span-5">
-              <div className="relative bg-white p-3 rounded-2xl border border-[#D4AF37]/40 shadow-xl overflow-hidden group">
-                {/* Brass Purity Badge */}
-                <div className="absolute top-6 left-6 z-20 bg-slate-900/90 text-[#D4AF37] backdrop-blur-xs px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-1.5 shadow-md border border-[#D4AF37]/40">
-                  <Sparkles className="w-3.5 h-3.5 text-[#D4AF37]" />
-                  <span>{heroUrli.pureBrassPurity}</span>
-                </div>
+              <div className="space-y-4">
+                {/* Museum Plinth Image Frame */}
+                <div className="relative bg-white p-4 sm:p-6 rounded-3xl border border-slate-200/60 shadow-[0_20px_50px_rgba(0,0,0,0.06)] group overflow-hidden">
+                  {/* Live Zoom Toggle */}
+                  <button
+                    onClick={() => setHeroZoom(!heroZoom)}
+                    aria-label="Toggle interactive zoom"
+                    className="absolute top-6 right-6 z-20 p-2.5 rounded-full bg-white/90 text-slate-800 hover:text-[#846328] shadow-[0_2px_8px_rgba(0,0,0,0.08)] border border-slate-200/60 transition-transform active:scale-95 cursor-pointer"
+                    title={heroZoom ? 'Reset Zoom' : 'Interactive 2X Zoom'}
+                  >
+                    <ZoomIn className={`w-4 h-4 ${heroZoom ? 'text-[#C5A059]' : ''}`} />
+                  </button>
 
-                {/* Live Zoom Affordance Toggle */}
-                <button
-                  onClick={() => setHeroZoom(!heroZoom)}
-                  aria-label="Toggle interactive zoom"
-                  className="absolute top-6 right-6 z-20 p-2 rounded-full bg-white/90 text-slate-800 hover:text-[#9E7A1C] shadow-md border border-slate-200 transition-transform active:scale-95 cursor-pointer"
-                  title={heroZoom ? 'Reset Zoom' : 'Interactive 2X Zoom'}
-                >
-                  <ZoomIn className={`w-4 h-4 ${heroZoom ? 'text-[#9E7A1C]' : ''}`} />
-                </button>
+                  {/* Artwork Container */}
+                  <div
+                    onClick={() => onSelectProduct(heroUrli)}
+                    className="w-full aspect-square rounded-2xl overflow-hidden flex items-center justify-center relative cursor-pointer"
+                  >
+                    <ProductArtwork productId={heroUrli.id} zoom={heroZoom} />
+                  </div>
 
-                {/* Hero Frame Vector Art Container */}
-                <div className="w-full aspect-4/3 rounded-xl overflow-hidden flex items-center justify-center bg-radial from-[#FFFDF8] to-[#F1E8D2] relative cursor-pointer" onClick={() => onSelectProduct(heroUrli)}>
-                  <ProductArtwork productId={heroUrli.id} zoom={heroUrli ? heroZoom : false} />
-                  
-                  {/* Subtle caption bottom */}
-                  <div className="absolute bottom-3 left-4 right-4 bg-white/85 backdrop-blur-xs px-3 py-1.5 rounded-lg border border-[#D4AF37]/30 flex items-center justify-between text-xs">
+                  {/* Editorial Plinth Caption */}
+                  <div className="mt-4 pt-4 border-t border-slate-100 flex items-center justify-between">
                     <div>
-                      <span className="font-bold text-slate-900">{heroUrli.name}</span>
-                      <span className="text-slate-500 block text-[11px]">{heroUrli.finish}</span>
+                      <h4 className="font-serif text-lg text-slate-900 font-normal">{heroUrli.name}</h4>
+                      <p className="text-xs text-slate-500 font-light mt-0.5">{heroUrli.finish}</p>
                     </div>
                     <div className="text-right">
-                      <span className="font-bold text-[#9E7A1C] text-sm tabular-nums">
+                      <div className="text-base font-semibold text-slate-950 tabular-nums">
                         {formatCurrency(heroUrli.offerPrice, currency)}
-                      </span>
-                      <span className="text-[10px] text-slate-400 line-through block tabular-nums">
+                      </div>
+                      <div className="text-xs text-slate-400 line-through tabular-nums">
                         {formatCurrency(heroUrli.mrp, currency)}
-                      </span>
+                      </div>
                     </div>
                   </div>
                 </div>
 
-                {/* Live Inspection Ribbon */}
-                <div className="mt-3 pt-2 px-1 flex items-center justify-between text-xs text-slate-600">
-                  <span className="flex items-center gap-1">
-                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-                    Hand-hammered ripple basin
-                  </span>
+                {/* Docked Purity Seal (Cleanly positioned below the frame without obstructing the piece) */}
+                <div className="p-3.5 rounded-2xl bg-white/80 border border-slate-200/60 shadow-[0_4px_16px_rgba(0,0,0,0.02)] flex items-center justify-between text-xs text-slate-600">
+                  <div className="flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-[#C5A059]" />
+                    <span className="font-medium text-slate-800">
+                      {heroUrli.pureBrassPurity || '99.8% Pure Solid Moradabad Brass'}
+                    </span>
+                  </div>
                   <button
                     onClick={() => onSelectProduct(heroUrli)}
-                    className="text-[#9E7A1C] font-semibold hover:underline flex items-center gap-0.5"
+                    className="text-xs text-[#846328] hover:underline font-semibold cursor-pointer"
                   >
-                    Inspect Details <ArrowRight className="w-3 h-3" />
+                    Inspect Artwork →
                   </button>
                 </div>
               </div>
@@ -199,31 +226,32 @@ export const B2CStorefront: React.FC<B2CStorefrontProps> = ({
         </div>
       </section>
 
-      {/* SECTION: Featured Artisanal Catalog Grid */}
-      <section id="catalog" className="max-w-7xl mx-auto px-4 sm:px-6 py-14">
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
-          <div>
-            <div className="text-xs uppercase tracking-widest text-[#9E7A1C] font-bold mb-1">
-              Curated Royal Collection
-            </div>
-            <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 font-serif">
+      {/* CATALOG & PRODUCT CARDS SECTION */}
+      <section id="curated-collection" className="py-24 sm:py-32 max-w-7xl mx-auto px-6 sm:px-12">
+        {/* Section Header & Editorial Filter */}
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-16 pb-8 border-b border-slate-200/60">
+          <div className="space-y-3 max-w-2xl">
+            <span className="text-[10px] tracking-[0.24em] font-semibold uppercase text-[#846328] block">
+              CURATED ATELIER REPERTOIRE
+            </span>
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-serif font-normal text-slate-950 tracking-tight">
               Masterpiece Brass &amp; Metalware
             </h2>
-            <p className="text-sm text-slate-500 mt-1">
+            <p className="text-sm sm:text-base text-slate-600 font-light leading-relaxed">
               Solid cast brass, hand-beaten copper, and heritage lacquered metal art direct from Moradabad foundries.
             </p>
           </div>
 
-          {/* Category Filter Tabs */}
-          <div className="flex items-center gap-1 overflow-x-auto pb-2 md:pb-0 scrollbar-none">
+          {/* Minimalist Segmented Category Filters */}
+          <div className="inline-flex items-center p-1 bg-[#FBF9F5] rounded-full border border-slate-200/70 overflow-x-auto scrollbar-none shrink-0">
             {categories.map((cat) => (
               <button
                 key={cat}
                 onClick={() => setSelectedCategory(cat)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
+                className={`px-4 py-2 rounded-full text-xs font-medium whitespace-nowrap transition-all cursor-pointer ${
                   selectedCategory === cat
-                    ? 'bg-slate-900 text-white shadow-xs'
-                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200/80 hover:text-slate-900'
+                    ? 'bg-slate-950 text-white shadow-xs'
+                    : 'text-slate-600 hover:text-slate-950 hover:bg-slate-100/50'
                 }`}
               >
                 {cat}
@@ -232,174 +260,113 @@ export const B2CStorefront: React.FC<B2CStorefrontProps> = ({
           </div>
         </div>
 
-        {/* Product Cards Grid */}
+        {/* Product Cards Grid: Uncompressed Gallery Layout */}
         {filteredProducts.length === 0 ? (
-          <div className="text-center py-16 bg-slate-50 rounded-2xl border border-dashed border-slate-200">
-            <p className="text-slate-500 text-sm">No handicrafts match your search or filter.</p>
+          <div className="text-center py-24 bg-[#FBF9F5] rounded-3xl border border-dashed border-slate-200">
+            <p className="text-slate-500 text-sm font-light">No artisanal pieces match your search or filter.</p>
             <button
-              onClick={() => {
-                setSelectedCategory('All');
-              }}
-              className="mt-3 px-4 py-2 bg-slate-900 text-white rounded-lg text-xs font-medium"
+              onClick={() => setSelectedCategory('All')}
+              className="mt-4 px-6 py-2.5 bg-slate-950 text-white rounded-full text-xs font-medium cursor-pointer"
             >
               Reset Filters
             </button>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 sm:gap-10 lg:gap-12">
             {filteredProducts.map((product) => {
               const discountPercent = calculateDiscountPercent(product.mrp, product.offerPrice);
               return (
                 <div
                   key={product.id}
-                  className="bg-white rounded-xl border border-[#D4AF37]/25 hover:border-[#D4AF37] shadow-xs hover:shadow-xl transition-all duration-300 flex flex-col group overflow-hidden"
+                  className="bg-white rounded-3xl border border-slate-200/60 hover:border-[#C5A059]/60 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_16px_40px_rgba(0,0,0,0.08)] transition-all duration-500 flex flex-col group overflow-hidden"
                 >
-                  {/* Visual Frame */}
+                  {/* Visual Museum Frame (with generous white border padding around artwork) */}
                   <div
                     onClick={() => onSelectProduct(product)}
-                    className="relative aspect-4/3 w-full overflow-hidden bg-radial from-[#FFFDF9] to-[#F3EDE0] cursor-pointer"
+                    className="relative aspect-square w-full p-6 sm:p-8 bg-gradient-to-b from-white to-[#FBF9F5] flex items-center justify-center cursor-pointer overflow-hidden"
                   >
-                    <ProductArtwork productId={product.id} />
-
-                    {/* Subtle Badge */}
-                    {product.badge && (
-                      <div className="absolute top-3 left-3 bg-[#111827] text-[#D4AF37] text-[11px] font-bold px-2.5 py-1 rounded-md shadow-xs border border-[#D4AF37]/30">
-                        {product.badge}
-                      </div>
-                    )}
-
-                    {/* Discount Badge */}
-                    {discountPercent > 0 && (
-                      <div className="absolute top-3 right-3 bg-red-600 text-white text-[11px] font-bold px-2 py-0.5 rounded-md shadow-xs">
-                        {discountPercent}% OFF
-                      </div>
-                    )}
-
-                    {/* Wishlist Toggle Button */}
-                    {onToggleWishlist && (
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          onToggleWishlist(product.id);
-                        }}
-                        aria-label="Toggle Wishlist"
-                        className="absolute bottom-2 right-3 z-10 p-1.5 rounded-full bg-white/90 shadow-xs hover:shadow-md text-slate-700 hover:text-rose-600 transition-all active:scale-95 cursor-pointer border border-slate-200"
-                        title={savedItemIds.includes(product.id) ? 'Saved' : 'Save Piece'}
-                      >
-                        <Heart
-                          className={`w-3.5 h-3.5 ${
-                            savedItemIds.includes(product.id) ? 'text-rose-600 fill-rose-600' : 'text-slate-600'
-                          }`}
-                        />
-                      </button>
-                    )}
-
-                    {/* Purity Floating Pill */}
-                    <div className="absolute bottom-2 left-3 text-[10px] bg-white/90 backdrop-blur-xs text-slate-700 px-2 py-0.5 rounded border border-slate-200 font-medium">
-                      {product.pureBrassPurity}
+                    <div className="w-full h-full rounded-2xl overflow-hidden border border-slate-100 shadow-[0_4px_16px_rgba(0,0,0,0.03)]">
+                      <ProductArtwork productId={product.id} />
                     </div>
+
+                    {/* Wishlist Button */}
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onToggleWishlist(product.id);
+                      }}
+                      aria-label="Save Piece"
+                      className="absolute top-8 right-8 z-10 p-2.5 rounded-full bg-white/90 shadow-[0_2px_8px_rgba(0,0,0,0.06)] hover:shadow-md text-slate-700 hover:text-rose-600 transition-all active:scale-95 cursor-pointer border border-slate-200/70"
+                      title={savedItemIds.includes(product.id) ? 'Saved' : 'Save Piece'}
+                    >
+                      <Heart
+                        className={`w-4 h-4 ${
+                          savedItemIds.includes(product.id) ? 'text-rose-600 fill-rose-600' : 'text-slate-600'
+                        }`}
+                      />
+                    </button>
                   </div>
 
-                  {/* Card Content Details */}
-                  <div className="p-5 flex-1 flex flex-col justify-between">
-                    <div>
-                      {/* Category & Rating */}
-                      <div className="flex items-center justify-between text-xs text-slate-500 mb-1.5">
-                        <span className="uppercase tracking-wider font-semibold text-[#8B6508]">
-                          {product.category}
-                        </span>
-                        <div className="flex items-center gap-1 text-amber-500">
-                          <Star className="w-3.5 h-3.5 fill-current" />
-                          <span className="font-semibold text-slate-700">{product.rating}</span>
-                          <span className="text-slate-400">({product.reviewCount})</span>
-                        </div>
+                  {/* Card Content & Details */}
+                  <div className="p-6 sm:p-8 flex-1 flex flex-col justify-between space-y-6">
+                    <div className="space-y-3">
+                      {/* Delicate Micro-Labels (Category & Weight) */}
+                      <div className="flex items-center justify-between text-[10px] tracking-widest uppercase text-slate-500 font-medium">
+                        <span className="text-[#846328] font-semibold">{product.category}</span>
+                        <span>GROSS: {product.grossWeightGrams.toLocaleString('en-IN')}G · SOLID BRASS</span>
                       </div>
 
-                      {/* Product Name */}
+                      {/* Product Name in Cormorant Garamond */}
                       <h3
                         onClick={() => onSelectProduct(product)}
-                        className="text-base font-bold text-slate-900 group-hover:text-[#9E7A1C] transition-colors cursor-pointer font-serif line-clamp-1"
+                        className="text-xl sm:text-2xl font-serif font-normal text-slate-900 group-hover:text-[#846328] transition-colors cursor-pointer leading-snug line-clamp-1"
                       >
                         {product.name}
                       </h3>
 
-                      {/* Emotional Hook */}
-                      <p className="text-xs text-[#9E7A1C] italic font-serif mt-0.5 line-clamp-1">
+                      {/* Emotional Artisan Hook */}
+                      <p className="text-xs text-slate-500 font-light italic leading-relaxed line-clamp-2">
                         &ldquo;{product.emotionalHook}&rdquo;
                       </p>
 
-                      {/* Finish & Artisan Lead */}
-                      <p className="text-xs text-slate-500 mt-1 line-clamp-1">
-                        {product.finish}
-                      </p>
-
-                      {/* Prominent Gross Weight in Grams & Dimensions */}
-                      <div className="mt-2.5 py-1.5 px-2.5 bg-slate-50 rounded-lg text-[11px] text-slate-700 border border-slate-100 flex items-center justify-between flex-wrap gap-1">
-                        <span className="font-semibold text-slate-900">
-                          Gross Weight: <strong className="text-amber-900 font-bold">{product.grossWeightGrams.toLocaleString('en-IN')}g</strong> (Solid Brass)
-                        </span>
-                        <span className="text-slate-400">·</span>
-                        <span className="text-slate-500">{product.dimensionsCm.length}×{product.dimensionsCm.height} cm</span>
-                      </div>
-
-                      {/* Golden 4-Badge Micro Trust Strip */}
-                      <div className="mt-2 grid grid-cols-2 gap-1 text-[10px] text-slate-600 bg-[#FFFDF7] p-1.5 rounded-md border border-[#D4AF37]/20">
-                        <span className="flex items-center gap-1">
-                          🏆 <strong>100% Solid Brass</strong>
-                        </span>
-                        <span className="flex items-center gap-1">
-                          🛡️ <strong>Anti-Tarnish Seal</strong> (5-Yr)
-                        </span>
-                        <span className="flex items-center gap-1">
-                          📦 <strong>Shatter-Free Crate</strong>
-                        </span>
-                        <span className="flex items-center gap-1">
-                          🔄 <strong>7-Day Easy Return</strong>
-                        </span>
-                      </div>
-
-                      {/* COD & Shipping Badge */}
-                      <div className="mt-2 flex items-center justify-between text-[10px] text-emerald-800">
-                        <span className="flex items-center gap-1 font-semibold">
-                          <Truck className="w-3 h-3 text-emerald-600" />
-                          COD Available Across India
-                        </span>
-                        <span className="text-slate-400">Dispatch in 24h</span>
+                      {/* Delicate Hairline Trust Marker */}
+                      <div className="pt-2 flex items-center justify-between text-[11px] text-slate-500 border-t border-slate-100">
+                        <div className="flex items-center gap-1">
+                          <Star className="w-3.5 h-3.5 text-[#C5A059] fill-current" />
+                          <span className="font-semibold text-slate-800">{product.rating}</span>
+                          <span className="text-slate-400">({product.reviewCount} reviews)</span>
+                        </div>
+                        <span className="text-[#846328] font-medium">{product.pureBrassPurity}</span>
                       </div>
                     </div>
 
-                    {/* Pricing & Add To Cart Button */}
-                    <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between gap-3">
+                    {/* Pricing & Actions */}
+                    <div className="pt-4 border-t border-slate-100 flex items-center justify-between gap-4">
                       <div>
                         <div className="flex items-baseline gap-2">
-                          <span className="text-lg font-bold text-slate-900 tabular-nums">
+                          <span className="text-xl font-semibold text-slate-950 tabular-nums">
                             {formatCurrency(product.offerPrice, currency)}
                           </span>
                           <span className="text-xs text-slate-400 line-through tabular-nums">
                             {formatCurrency(product.mrp, currency)}
                           </span>
-                          {discountPercent > 0 && (
-                            <span className="text-[10px] font-bold bg-amber-100 text-amber-900 px-1.5 py-0.2 rounded">
-                              Save {discountPercent}%
-                            </span>
-                          )}
                         </div>
-                        <span className="text-[10px] text-slate-400 font-normal block">
-                          Inclusive of all taxes
+                        <span className="text-[10px] text-slate-400 font-normal block mt-0.5">
+                          Taxes included {discountPercent > 0 && `· Save ${discountPercent}%`}
                         </span>
                       </div>
 
-                      <div className="flex items-center gap-1.5">
+                      <div className="flex items-center gap-2">
                         <button
                           onClick={() => onSelectProduct(product)}
-                          className="px-2.5 py-2 text-xs font-semibold text-slate-700 hover:text-slate-900 border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors cursor-pointer"
+                          className="px-4 py-2.5 rounded-full text-xs font-medium text-slate-700 hover:text-slate-950 border border-slate-200/80 hover:bg-slate-50 transition-colors cursor-pointer"
                         >
                           Details
                         </button>
                         <button
                           onClick={() => onAddToCart(product, 1)}
-                          className="px-3.5 py-2 text-xs font-bold text-slate-950 bg-linear-to-r from-[#F5D061] to-[#D4AF37] hover:from-[#FFE285] hover:to-[#DFB73E] rounded-lg shadow-xs hover:shadow-sm transition-all cursor-pointer"
+                          className="px-5 py-2.5 rounded-full text-xs font-semibold text-white bg-slate-950 hover:bg-[#846328] transition-all duration-300 shadow-xs cursor-pointer"
                         >
                           Add to Bag
                         </button>
@@ -413,39 +380,97 @@ export const B2CStorefront: React.FC<B2CStorefrontProps> = ({
         )}
       </section>
 
+      {/* SECTION: Connoisseur Testimonials & Ratings Showcase */}
+      <section className="bg-[#FBF9F5] py-24 sm:py-32 border-t border-b border-slate-200/60">
+        <div className="max-w-7xl mx-auto px-6 sm:px-12">
+          <div className="text-center max-w-3xl mx-auto mb-16 space-y-4">
+            <span className="text-[10px] tracking-[0.24em] font-semibold uppercase text-[#846328] block">
+              PATRON TESTIMONIALS
+            </span>
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-serif font-normal text-slate-950 tracking-tight">
+              Revered by Discerning Living Spaces
+            </h2>
+            <p className="text-slate-600 text-sm sm:text-base font-light leading-relaxed">
+              From diplomatic embassies and heritage bungalows to modern luxury penthouses across New Delhi, Mumbai, London, and Dubai.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {INITIAL_REVIEWS.slice(0, 3).map((review) => (
+              <div
+                key={review.id}
+                className="bg-white p-8 rounded-3xl border border-slate-200/60 shadow-[0_8px_30px_rgb(0,0,0,0.03)] space-y-5 flex flex-col justify-between"
+              >
+                <div className="space-y-4">
+                  {/* Star Rating */}
+                  <div className="flex items-center gap-1 text-[#C5A059]">
+                    {[...Array(5)].map((_, i) => (
+                      <Star
+                        key={i}
+                        className={`w-4 h-4 ${
+                          i < review.rating ? 'fill-current text-[#C5A059]' : 'text-slate-200'
+                        }`}
+                      />
+                    ))}
+                  </div>
+
+                  <h4 className="font-serif text-lg text-slate-900 font-normal leading-snug">
+                    &ldquo;{review.title}&rdquo;
+                  </h4>
+
+                  <p className="text-xs text-slate-600 font-light leading-relaxed">
+                    {review.comment}
+                  </p>
+                </div>
+
+                <div className="pt-4 border-t border-slate-100 flex items-center justify-between text-xs">
+                  <div>
+                    <span className="font-semibold text-slate-900 block">{review.authorName}</span>
+                    <span className="text-[11px] text-slate-400">{review.date}</span>
+                  </div>
+                  <span className="text-[10px] uppercase tracking-wider text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full font-medium">
+                    Verified Connoisseur
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* SECTION: Artisanal Provenance & Foundry Story */}
-      <section className="bg-slate-900 text-white py-16 border-t border-b border-[#D4AF37]/30 relative overflow-hidden">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 relative z-10">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-            <div className="lg:col-span-6 space-y-4">
-              <span className="text-xs font-bold uppercase tracking-widest text-[#D4AF37] flex items-center gap-2">
-                <Flame className="w-4 h-4 text-[#D4AF37]" />
+      <section className="bg-[#0F172A] text-white py-24 sm:py-32 relative overflow-hidden">
+        <div className="max-w-7xl mx-auto px-6 sm:px-12 relative z-10">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
+            <div className="lg:col-span-6 space-y-6">
+              <span className="text-xs font-semibold uppercase tracking-[0.22em] text-[#DFBA73] flex items-center gap-2">
+                <Flame className="w-4 h-4 text-[#C5A059]" />
                 Direct From Moradabad Foundries
               </span>
-              <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold font-serif leading-tight">
-                Crafted in Jigar Colony, Moradabad: The Legendary Brass Crucible of India
+
+              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-serif font-normal leading-tight text-white tracking-tight">
+                Crafted in Jigar Colony, Moradabad: The Legendary Crucible of India.
               </h2>
-              <p className="text-slate-300 text-sm sm:text-base leading-relaxed">
-                For over 400 years, Moradabad in Uttar Pradesh has been revered as &quot;Peetal Nagri&quot; (The Brass City). 
-                At <strong>TAG ZEE</strong>, founded by <strong>Zeefaham Rais</strong> and <strong>Atir Rais</strong>, we safeguard this royal metallurgical legacy. 
-                Our artisans do not mass-produce stamped tin; every vessel is cast in traditional clay-sand molds, turned on heavy lathes, and chiseled with master chisels.
+
+              <p className="text-slate-300 text-sm sm:text-base font-light leading-relaxed">
+                For over 400 years, Moradabad in Uttar Pradesh has been celebrated as &quot;Peetal Nagri&quot; (The Brass Capital). At <strong>TAG ZEE</strong>, founded by <strong>Zeefaham Rais</strong> &amp; <strong>Atir Rais</strong>, we preserve this royal metallurgical lineage. Our pieces are cast in traditional sand loam molds, lathed on balance benches, and hand-chiseled by generational ustads.
               </p>
 
-              <div className="grid grid-cols-2 gap-4 pt-2">
-                <div className="p-3 bg-slate-800/80 rounded-lg border border-[#D4AF37]/20">
-                  <div className="text-xl font-bold text-[#D4AF37] font-serif">400+ Years</div>
-                  <div className="text-xs text-slate-400">Generational Moradabad Metallurgy</div>
+              <div className="grid grid-cols-2 gap-6 pt-4">
+                <div className="p-5 bg-slate-900/80 rounded-2xl border border-slate-800">
+                  <div className="text-2xl font-serif text-[#DFBA73] font-normal">400+ Years</div>
+                  <div className="text-xs text-slate-400 mt-1">Generational Metallurgy Legacy</div>
                 </div>
-                <div className="p-3 bg-slate-800/80 rounded-lg border border-[#D4AF37]/20">
-                  <div className="text-xl font-bold text-[#D4AF37] font-serif">100% Virgin Brass</div>
-                  <div className="text-xs text-slate-400">Lead-Free &amp; Heavy-Gauge Ingot Cast</div>
+                <div className="p-5 bg-slate-900/80 rounded-2xl border border-slate-800">
+                  <div className="text-2xl font-serif text-[#DFBA73] font-normal">100% Virgin Brass</div>
+                  <div className="text-xs text-slate-400 mt-1">Certified Lead-Free Ingot Casting</div>
                 </div>
               </div>
 
               <div className="pt-2">
                 <button
                   onClick={onSwitchToB2B}
-                  className="inline-flex items-center gap-2 text-xs font-semibold text-[#D4AF37] hover:text-white transition-colors"
+                  className="inline-flex items-center gap-2 text-xs font-semibold text-[#DFBA73] hover:text-white transition-colors cursor-pointer"
                 >
                   <span>Looking for direct factory container exports? Visit B2B Portal</span>
                   <ArrowRight className="w-4 h-4" />
@@ -454,44 +479,36 @@ export const B2CStorefront: React.FC<B2CStorefrontProps> = ({
             </div>
 
             {/* Foundry Workshop Pillars */}
-            <div className="lg:col-span-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="p-5 bg-slate-800/60 rounded-xl border border-slate-700/80 space-y-2">
-                <div className="w-8 h-8 rounded-lg bg-[#D4AF37]/20 text-[#D4AF37] flex items-center justify-center font-bold text-sm">
-                  01
-                </div>
-                <h4 className="font-bold text-white text-sm">Clay Sand Casting</h4>
-                <p className="text-xs text-slate-400">
-                  Molten virgin brass poured at 1,020°C into hand-packed fine alluvial loam sand molds for solid acoustic density.
+            <div className="lg:col-span-6 grid grid-cols-1 sm:grid-cols-2 gap-6">
+              <div className="p-6 bg-slate-900/60 rounded-2xl border border-slate-800 space-y-3">
+                <span className="text-xs font-mono text-[#C5A059] font-medium">01</span>
+                <h4 className="font-serif text-lg text-white font-normal">Clay Sand Loam Casting</h4>
+                <p className="text-xs text-slate-400 font-light leading-relaxed">
+                  Molten virgin brass poured at 1,020°C into hand-packed alluvial sand molds for solid acoustic density.
                 </p>
               </div>
 
-              <div className="p-5 bg-slate-800/60 rounded-xl border border-slate-700/80 space-y-2">
-                <div className="w-8 h-8 rounded-lg bg-[#D4AF37]/20 text-[#D4AF37] flex items-center justify-center font-bold text-sm">
-                  02
-                </div>
-                <h4 className="font-bold text-white text-sm">Repoussé Hand-Chiseling</h4>
-                <p className="text-xs text-slate-400">
-                  Skilled ustads hammer concentric ripples and floral borders using hardened steel chisels without mechanical stamping.
+              <div className="p-6 bg-slate-900/60 rounded-2xl border border-slate-800 space-y-3">
+                <span className="text-xs font-mono text-[#C5A059] font-medium">02</span>
+                <h4 className="font-serif text-lg text-white font-normal">Repoussé Hand-Chiseling</h4>
+                <p className="text-xs text-slate-400 font-light leading-relaxed">
+                  Generational artisans hand-strike concentric ripples and motifs using hardened steel chisels.
                 </p>
               </div>
 
-              <div className="p-5 bg-slate-800/60 rounded-xl border border-slate-700/80 space-y-2">
-                <div className="w-8 h-8 rounded-lg bg-[#D4AF37]/20 text-[#D4AF37] flex items-center justify-center font-bold text-sm">
-                  03
-                </div>
-                <h4 className="font-bold text-white text-sm">Lost-Wax Filigree</h4>
-                <p className="text-xs text-slate-400">
-                  Intricate peacock feathers and openwork jali mesh created using ancient cire-perdue casting for museum-grade delicacy.
+              <div className="p-6 bg-slate-900/60 rounded-2xl border border-slate-800 space-y-3">
+                <span className="text-xs font-mono text-[#C5A059] font-medium">03</span>
+                <h4 className="font-serif text-lg text-white font-normal">Lost-Wax Filigree</h4>
+                <p className="text-xs text-slate-400 font-light leading-relaxed">
+                  Intricate peacock feathers and openwork jali mesh created using ancient cire-perdue technique.
                 </p>
               </div>
 
-              <div className="p-5 bg-slate-800/60 rounded-xl border border-slate-700/80 space-y-2">
-                <div className="w-8 h-8 rounded-lg bg-[#D4AF37]/20 text-[#D4AF37] flex items-center justify-center font-bold text-sm">
-                  04
-                </div>
-                <h4 className="font-bold text-white text-sm">High-Bake Anti-Tarnish</h4>
-                <p className="text-xs text-slate-400">
-                  Dual electro-polishing followed by high-temperature baked organic lacquer sealing against humidity and blackening.
+              <div className="p-6 bg-slate-900/60 rounded-2xl border border-slate-800 space-y-3">
+                <span className="text-xs font-mono text-[#C5A059] font-medium">04</span>
+                <h4 className="font-serif text-lg text-white font-normal">High-Bake Anti-Tarnish</h4>
+                <p className="text-xs text-slate-400 font-light leading-relaxed">
+                  Dual electro-polishing followed by high-temperature baked organic lacquer sealing against humidity.
                 </p>
               </div>
             </div>
@@ -500,64 +517,74 @@ export const B2CStorefront: React.FC<B2CStorefrontProps> = ({
       </section>
 
       {/* SECTION: Customer Experience Guarantees */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 py-12 border-b border-slate-100">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 text-slate-800">
-          <div className="flex items-start gap-3">
-            <Truck className="w-6 h-6 text-[#9E7A1C] shrink-0 mt-0.5" />
-            <div>
-              <h5 className="font-bold text-sm">Free Express Shipping</h5>
-              <p className="text-xs text-slate-500 mt-0.5">Complimentary door delivery across all Indian pincodes over ₹2,499.</p>
+      <section className="max-w-7xl mx-auto px-6 sm:px-12 py-20 border-b border-slate-100">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 text-slate-800">
+          <div className="flex items-start gap-4">
+            <Truck className="w-5 h-5 text-[#C5A059] shrink-0 mt-0.5" />
+            <div className="space-y-1">
+              <h5 className="font-medium text-sm text-slate-950">Free Express Air Shipping</h5>
+              <p className="text-xs text-slate-500 font-light leading-relaxed">
+                Complimentary door delivery across all Indian pincodes on orders over ₹2,499.
+              </p>
             </div>
           </div>
-          <div className="flex items-start gap-3">
-            <ShieldCheck className="w-6 h-6 text-[#9E7A1C] shrink-0 mt-0.5" />
-            <div>
-              <h5 className="font-bold text-sm">Authenticity Guarantee</h5>
-              <p className="text-xs text-slate-500 mt-0.5">Certified 99.8% virgin brass with official GI Moradabad hallmark seal.</p>
+
+          <div className="flex items-start gap-4">
+            <ShieldCheck className="w-5 h-5 text-[#C5A059] shrink-0 mt-0.5" />
+            <div className="space-y-1">
+              <h5 className="font-medium text-sm text-slate-950">Authenticity Guarantee</h5>
+              <p className="text-xs text-slate-500 font-light leading-relaxed">
+                Certified 99.8% virgin brass with official GI Moradabad hallmark seal.
+              </p>
             </div>
           </div>
-          <div className="flex items-start gap-3">
-            <RotateCcw className="w-6 h-6 text-[#9E7A1C] shrink-0 mt-0.5" />
-            <div>
-              <h5 className="font-bold text-sm">7-Day Transit Care</h5>
-              <p className="text-xs text-slate-500 mt-0.5">Zero-risk transit insurance. Immediate replacement if damaged in transit.</p>
+
+          <div className="flex items-start gap-4">
+            <RotateCcw className="w-5 h-5 text-[#C5A059] shrink-0 mt-0.5" />
+            <div className="space-y-1">
+              <h5 className="font-medium text-sm text-slate-950">7-Day Transit Care</h5>
+              <p className="text-xs text-slate-500 font-light leading-relaxed">
+                Zero-risk transit insurance. Immediate replacement if damaged during shipping.
+              </p>
             </div>
           </div>
-          <div className="flex items-start gap-3">
-            <Phone className="w-6 h-6 text-[#9E7A1C] shrink-0 mt-0.5" />
-            <div>
-              <h5 className="font-bold text-sm">Artisan Direct Help</h5>
-              <p className="text-xs text-slate-500 mt-0.5">Direct WhatsApp support with owners Zeefaham Rais &amp; Atir Rais.</p>
+
+          <div className="flex items-start gap-4">
+            <Phone className="w-5 h-5 text-[#C5A059] shrink-0 mt-0.5" />
+            <div className="space-y-1">
+              <h5 className="font-medium text-sm text-slate-950">Direct Concierge Help</h5>
+              <p className="text-xs text-slate-500 font-light leading-relaxed">
+                Direct WhatsApp access to owners Zeefaham Rais &amp; Atir Rais.
+              </p>
             </div>
           </div>
         </div>
       </section>
 
       {/* FOOTER */}
-      <footer className="bg-slate-950 text-slate-300 pt-12 pb-8 border-t border-[#D4AF37]/30 text-xs">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 grid grid-cols-1 md:grid-cols-12 gap-8 pb-10 border-b border-slate-800">
+      <footer className="bg-slate-950 text-slate-300 pt-16 pb-12 text-xs">
+        <div className="max-w-7xl mx-auto px-6 sm:px-12 grid grid-cols-1 md:grid-cols-12 gap-12 pb-12 border-b border-slate-800">
           {/* Brand Info */}
-          <div className="md:col-span-4 space-y-3">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-full bg-[#D4AF37] text-slate-950 font-bold flex items-center justify-center font-serif">
+          <div className="md:col-span-4 space-y-4">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-full bg-[#C5A059] text-slate-950 font-bold flex items-center justify-center font-serif">
                 TZ
               </div>
-              <span className="text-lg font-bold text-white tracking-wider font-serif">TAG ZEE</span>
+              <span className="text-xl font-serif text-white tracking-wider">TAG ZEE</span>
             </div>
-            <p className="text-slate-400 leading-relaxed text-xs">
-              Makers of distinguished Moradabad brassware, copper culinary art, and royal home decor. 
-              Bridging royal Indian metalwork with modern luxury interiors worldwide.
+            <p className="text-slate-400 font-light leading-relaxed">
+              Makers of distinguished Moradabad brassware, copper culinary art, and royal home decor. Bridging historic Indian metalwork with modern luxury interiors worldwide.
             </p>
-            <div className="pt-2 text-slate-400 space-y-1">
+            <div className="pt-2 text-slate-400 space-y-1 text-[11px]">
               <div>Founders: <strong className="text-slate-200">{BRAND_INFO.owners}</strong></div>
               <div>GSTIN: <span className="font-mono text-slate-300">{BRAND_INFO.gstin}</span></div>
             </div>
           </div>
 
           {/* Product Pillars */}
-          <div className="md:col-span-3 space-y-2">
-            <h5 className="text-white font-bold text-xs uppercase tracking-wider">Product Pillars</h5>
-            <ul className="space-y-1.5 text-slate-400">
+          <div className="md:col-span-3 space-y-3">
+            <h5 className="text-white font-medium text-xs tracking-wider uppercase">Artisanal Pillars</h5>
+            <ul className="space-y-2 text-slate-400 font-light">
               <li>Metal Handicrafts &amp; Pure Brassware</li>
               <li>Home &amp; Kitchen (Ayurvedic Copper Dining)</li>
               <li>Garden Decor &amp; Bronze Planters</li>
@@ -567,29 +594,29 @@ export const B2CStorefront: React.FC<B2CStorefrontProps> = ({
           </div>
 
           {/* Atelier & Factory Location */}
-          <div className="md:col-span-5 space-y-2">
-            <h5 className="text-white font-bold text-xs uppercase tracking-wider">Moradabad Atelier &amp; Contact</h5>
-            <div className="space-y-1.5 text-slate-400">
-              <p className="flex items-start gap-2">
-                <MapPin className="w-4 h-4 text-[#D4AF37] shrink-0 mt-0.5" />
+          <div className="md:col-span-5 space-y-3">
+            <h5 className="text-white font-medium text-xs tracking-wider uppercase">Moradabad Atelier &amp; Contact</h5>
+            <div className="space-y-2 text-slate-400 font-light">
+              <p className="flex items-start gap-2.5">
+                <MapPin className="w-4 h-4 text-[#C5A059] shrink-0 mt-0.5" />
                 <span>{BRAND_INFO.address}</span>
               </p>
-              <p className="flex items-center gap-2">
-                <Mail className="w-4 h-4 text-[#D4AF37] shrink-0" />
+              <p className="flex items-center gap-2.5">
+                <Mail className="w-4 h-4 text-[#C5A059] shrink-0" />
                 <span>{BRAND_INFO.email} / {BRAND_INFO.corporateEmail}</span>
               </p>
-              <p className="flex items-center gap-2">
-                <Phone className="w-4 h-4 text-[#D4AF37] shrink-0" />
+              <p className="flex items-center gap-2.5">
+                <Phone className="w-4 h-4 text-[#C5A059] shrink-0" />
                 <span>{BRAND_INFO.contacts.join(' / ')}</span>
               </p>
             </div>
 
-            <div className="pt-3 flex flex-wrap gap-2">
+            <div className="pt-3 flex flex-wrap gap-3">
               <a
                 href={`https://wa.me/917248257721?text=Hello%20TAG%20ZEE,%20I%20am%20interested%20in%20your%20Moradabad%20handicrafts`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="px-3 py-1.5 bg-emerald-700 hover:bg-emerald-600 text-white rounded text-xs font-semibold flex items-center gap-1.5"
+                className="px-4 py-2 bg-emerald-800 hover:bg-emerald-700 text-white rounded-full text-xs font-medium flex items-center gap-2 transition-colors"
               >
                 <span>WhatsApp Zeefaham Rais</span>
                 <ExternalLink className="w-3 h-3" />
@@ -598,7 +625,7 @@ export const B2CStorefront: React.FC<B2CStorefrontProps> = ({
                 href={`https://wa.me/917351366786?text=Hello%20TAG%20ZEE,%20I%20am%20inquiring%20about%20Wholesale%20Export`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded text-xs font-semibold flex items-center gap-1.5"
+                className="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-800 rounded-full text-xs font-medium flex items-center gap-2 transition-colors"
               >
                 <span>WhatsApp Atir Rais</span>
                 <ExternalLink className="w-3 h-3" />
@@ -607,7 +634,7 @@ export const B2CStorefront: React.FC<B2CStorefrontProps> = ({
           </div>
         </div>
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-6 flex flex-col sm:flex-row items-center justify-between text-[11px] text-slate-500 gap-2">
+        <div className="max-w-7xl mx-auto px-6 sm:px-12 pt-8 flex flex-col sm:flex-row items-center justify-between text-[11px] text-slate-500 gap-3">
           <div>
             © {new Date().getFullYear()} TAG ZEE Moradabad. All Rights Reserved. Pure Custom Architecture.
           </div>
