@@ -44,6 +44,7 @@ export const ProductArtwork: React.FC<ProductArtworkProps> = ({
       {productId.includes('plnt') && <PlanterVectorArtwork />}
       {productId.includes('mirr') && <MirrorVectorArtwork />}
       {productId.includes('lant') && <LanternVectorArtwork />}
+      {productId.includes('dhok') && <DhokraStatuetteVectorArtwork />}
 
       {/* Luxury Metallic Floor Reflection Shadow */}
       <div
@@ -480,6 +481,90 @@ function LanternVectorArtwork() {
       {/* Pendant Droplet Finial Base */}
       <path d="M125 290 L195 290 L160 340 Z" fill="url(#moroccanBrass)" stroke="#4A3403" strokeWidth="1" />
       <circle cx="160" cy="348" r="7" fill="url(#moroccanBrass)" />
+    </svg>
+  );
+}
+
+/* 7. Handcrafted Dhokra Tribal Metal Statuette (Limited Heritage Batch) */
+function DhokraStatuetteVectorArtwork() {
+  return (
+    <svg viewBox="0 0 320 320" className="w-4/5 h-4/5 drop-shadow-xl" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="dhokraBronze" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#4A3B2C" />
+          <stop offset="25%" stopColor="#8C6D3B" />
+          <stop offset="50%" stopColor="#D4AF37" />
+          <stop offset="75%" stopColor="#6E5028" />
+          <stop offset="100%" stopColor="#2E2419" />
+        </linearGradient>
+        <linearGradient id="dhokraHighlight" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stopColor="#F5D061" />
+          <stop offset="100%" stopColor="#A67C1E" />
+        </linearGradient>
+      </defs>
+
+      {/* Stepped Lost-Wax Base Pedestal */}
+      <rect x="70" y="270" width="180" height="20" rx="3" fill="url(#dhokraBronze)" stroke="#2E2419" strokeWidth="1.5" />
+      <rect x="90" y="255" width="140" height="15" rx="2" fill="url(#dhokraBronze)" stroke="#2E2419" strokeWidth="1.5" />
+      {/* Hand-rolled wax thread coils on base */}
+      <line x1="75" y1="280" x2="245" y2="280" stroke="#FFE082" strokeWidth="1" strokeDasharray="3 2" />
+
+      {/* Tribal Royal Steed / Elephant Legs with coiled wire bands */}
+      <line x1="110" y1="255" x2="110" y2="180" stroke="url(#dhokraBronze)" strokeWidth="12" strokeLinecap="round" />
+      <line x1="135" y1="255" x2="135" y2="185" stroke="url(#dhokraBronze)" strokeWidth="10" strokeLinecap="round" />
+      <line x1="185" y1="255" x2="185" y2="185" stroke="url(#dhokraBronze)" strokeWidth="10" strokeLinecap="round" />
+      <line x1="210" y1="255" x2="210" y2="180" stroke="url(#dhokraBronze)" strokeWidth="12" strokeLinecap="round" />
+
+      {/* Coiled wax wire rings on legs */}
+      <g stroke="#F5D061" strokeWidth="1.5" opacity="0.8">
+        <line x1="104" y1="235" x2="116" y2="235" />
+        <line x1="104" y1="225" x2="116" y2="225" />
+        <line x1="129" y1="235" x2="141" y2="235" />
+        <line x1="179" y1="235" x2="191" y2="235" />
+        <line x1="204" y1="235" x2="216" y2="235" />
+        <line x1="204" y1="225" x2="216" y2="225" />
+      </g>
+
+      {/* Stylized Elongated Torso with Dhokra Lattice Pattern */}
+      <ellipse cx="160" cy="175" rx="58" ry="28" fill="url(#dhokraBronze)" stroke="#2E2419" strokeWidth="2" />
+      {/* Traditional Dhokra criss-cross wax thread mantle */}
+      <g stroke="#FFE082" strokeWidth="1.2" opacity="0.85" fill="none">
+        <path d="M125 160 Q160 190 195 160" />
+        <path d="M130 170 Q160 200 190 170" />
+        <line x1="135" y1="160" x2="145" y2="190" />
+        <line x1="150" y1="155" x2="160" y2="195" />
+        <line x1="165" y1="155" x2="175" y2="195" />
+        <line x1="180" y1="160" x2="190" y2="190" />
+      </g>
+
+      {/* Archaic Arched Neck & Stylized Head */}
+      <path
+        d="M120 170 C 105 150, 95 110, 105 85 C 115 65, 135 60, 140 70 C 145 80, 135 105, 145 125 C 150 145, 140 165, 135 170 Z"
+        fill="url(#dhokraBronze)"
+        stroke="#2E2419"
+        strokeWidth="1.8"
+      />
+      {/* Mane of Hand-Spun Brass Filigree Loops */}
+      <g fill="#F5D061" opacity="0.9">
+        <circle cx="108" cy="80" r="3" />
+        <circle cx="104" cy="95" r="3.5" />
+        <circle cx="102" cy="112" r="3.5" />
+        <circle cx="103" cy="130" r="3.5" />
+        <circle cx="108" cy="148" r="3.5" />
+      </g>
+
+      {/* Regal Ceremonial Howdah / Tribal Rider Figurine */}
+      <rect x="145" y="125" width="30" height="24" rx="3" fill="url(#dhokraHighlight)" stroke="#2E2419" strokeWidth="1.2" />
+      {/* Tribal Rider Torso and Head */}
+      <circle cx="160" cy="105" r="8" fill="url(#dhokraBronze)" stroke="#2E2419" strokeWidth="1" />
+      {/* Crown / Headdress */}
+      <polygon points="154,98 160,90 166,98" fill="#F5D061" />
+      <line x1="160" y1="113" x2="160" y2="125" stroke="url(#dhokraBronze)" strokeWidth="5" />
+      <line x1="150" y1="118" x2="170" y2="118" stroke="url(#dhokraBronze)" strokeWidth="3" />
+
+      {/* Upcurved Tail with Bell Ornament */}
+      <path d="M210 165 C 230 150, 235 130, 225 115 C 220 110, 212 115, 215 122 C 220 135, 210 150, 205 160" fill="none" stroke="url(#dhokraBronze)" strokeWidth="4" />
+      <circle cx="225" cy="115" r="4.5" fill="#F5D061" stroke="#2E2419" strokeWidth="1" />
     </svg>
   );
 }

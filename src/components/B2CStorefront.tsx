@@ -15,6 +15,7 @@ import {
   MapPin,
   ExternalLink,
   Heart,
+  Building2,
 } from 'lucide-react';
 import type { Currency, Product } from '../types/index.ts';
 import { BRAND_INFO } from '../data/catalog.ts';
@@ -85,30 +86,31 @@ export const B2CStorefront: React.FC<B2CStorefrontProps> = ({
               </div>
 
               <h1 className="text-2xl sm:text-4xl md:text-5xl font-extrabold text-slate-900 tracking-tight font-serif leading-[1.2]">
-                The Grandeur of <span className="text-[#9E7A1C] underline decoration-[#D4AF37]/40">Moradabad Metal Craft</span> in Modern Homes
+                The Grandeur of <span className="text-[#9E7A1C] underline decoration-[#D4AF37]/40">Moradabad Metal Craftsmanship</span> in Modern Living Spaces.
               </h1>
 
               <p className="text-base sm:text-lg text-slate-600 max-w-xl leading-relaxed">
-                Hand-forged by master coppersmiths Zeefaham Rais and Atir Rais in India&apos;s historic Peetal Nagri. 
-                Experience virgin brass urns, peacock deepaks, pure copper tableware, and antique garden heirlooms chiseled with centuries of royal provenance.
+                Hand-hammered by 3rd-generation master artisans using 100% solid virgin brass and food-safe alloy purity. Experience sacred deepaks, banquet cutlery, fluted planters, and antique heirlooms.
               </p>
 
               {/* Action Buttons */}
               <div className="flex flex-wrap items-center gap-3 pt-2">
                 <a
                   href="#catalog"
-                  className="px-6 py-3.5 bg-slate-900 text-white hover:bg-slate-800 rounded-lg font-semibold text-sm shadow-md hover:shadow-lg transition-all flex items-center gap-2 group cursor-pointer"
+                  className="px-6 py-3.5 bg-linear-to-r from-[#D4AF37] to-[#C5A059] hover:from-[#E5C158] hover:to-[#D4AE6A] text-slate-950 font-bold rounded-lg shadow-md hover:shadow-lg transition-all flex items-center gap-2 group cursor-pointer text-sm"
                 >
+                  <Sparkles className="w-4 h-4 text-slate-950" />
                   <span>Shop Retail Collection</span>
                   <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                 </a>
 
                 <button
                   onClick={onSwitchToB2B}
-                  className="px-6 py-3.5 bg-linear-to-r from-[#FFF5D6] to-[#FFE9A6] text-amber-950 hover:from-[#FFECAE] hover:to-[#FEDC78] border border-[#D4AF37] rounded-lg font-bold text-sm shadow-xs transition-all flex items-center gap-2 cursor-pointer"
+                  className="px-6 py-3.5 bg-white text-slate-900 hover:bg-slate-50 border-2 border-[#D4AF37] rounded-lg font-bold text-sm shadow-xs transition-all flex items-center gap-2 cursor-pointer"
                 >
-                  <span>Explore B2B Wholesale Portal</span>
-                  <span className="text-xs font-normal text-amber-800">(MOQ 20+)</span>
+                  <Building2 className="w-4 h-4 text-[#9E7A1C]" />
+                  <span>B2B Wholesale Catalog</span>
+                  <span className="text-xs font-semibold text-[#9E7A1C]">(MOQ 20+)</span>
                 </button>
               </div>
 
@@ -117,22 +119,22 @@ export const B2CStorefront: React.FC<B2CStorefrontProps> = ({
                 <div className="flex items-center gap-2">
                   <Award className="w-5 h-5 text-[#9E7A1C] shrink-0" />
                   <div>
-                    <span className="font-bold block text-slate-900">99.8% Pure</span>
-                    <span className="text-slate-500">Virgin Brass</span>
+                    <span className="font-bold block text-slate-900">100% Solid Brass</span>
+                    <span className="text-slate-500">Virgin Ingot Metallurgy</span>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
                   <ShieldCheck className="w-5 h-5 text-[#9E7A1C] shrink-0" />
                   <div>
-                    <span className="font-bold block text-slate-900">GI Certified</span>
-                    <span className="text-slate-500">Moradabad Craft</span>
+                    <span className="font-bold block text-slate-900">Anti-Tarnish Seal</span>
+                    <span className="text-slate-500">5-Year Radiant Glow</span>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
                   <Sparkles className="w-5 h-5 text-[#9E7A1C] shrink-0" />
                   <div>
                     <span className="font-bold block text-slate-900">Direct Foundry</span>
-                    <span className="text-slate-500">Zero Middlemen</span>
+                    <span className="text-slate-500">Jigar Colony Moradabad</span>
                   </div>
                 </div>
               </div>
@@ -322,23 +324,53 @@ export const B2CStorefront: React.FC<B2CStorefrontProps> = ({
                         {product.name}
                       </h3>
 
+                      {/* Emotional Hook */}
+                      <p className="text-xs text-[#9E7A1C] italic font-serif mt-0.5 line-clamp-1">
+                        &ldquo;{product.emotionalHook}&rdquo;
+                      </p>
+
                       {/* Finish & Artisan Lead */}
                       <p className="text-xs text-slate-500 mt-1 line-clamp-1">
                         {product.finish}
                       </p>
 
-                      {/* Key Dimension & Weight specs */}
-                      <div className="mt-2.5 py-1.5 px-2.5 bg-slate-50 rounded-md text-[11px] text-slate-600 flex items-center justify-between">
-                        <span>Weight: <strong className="text-slate-800">{product.weightKg} kg</strong></span>
-                        <span>·</span>
-                        <span>Size: <strong className="text-slate-800">{product.dimensionsCm.length}×{product.dimensionsCm.height} cm</strong></span>
-                        <span>·</span>
-                        <span className="text-emerald-700 font-medium">In Stock ({product.stock})</span>
+                      {/* Prominent Gross Weight in Grams & Dimensions */}
+                      <div className="mt-2.5 py-1.5 px-2.5 bg-slate-50 rounded-lg text-[11px] text-slate-700 border border-slate-100 flex items-center justify-between flex-wrap gap-1">
+                        <span className="font-semibold text-slate-900">
+                          Gross Weight: <strong className="text-amber-900 font-bold">{product.grossWeightGrams.toLocaleString('en-IN')}g</strong> (Solid Brass)
+                        </span>
+                        <span className="text-slate-400">·</span>
+                        <span className="text-slate-500">{product.dimensionsCm.length}×{product.dimensionsCm.height} cm</span>
+                      </div>
+
+                      {/* Golden 4-Badge Micro Trust Strip */}
+                      <div className="mt-2 grid grid-cols-2 gap-1 text-[10px] text-slate-600 bg-[#FFFDF7] p-1.5 rounded-md border border-[#D4AF37]/20">
+                        <span className="flex items-center gap-1">
+                          🏆 <strong>100% Solid Brass</strong>
+                        </span>
+                        <span className="flex items-center gap-1">
+                          🛡️ <strong>Anti-Tarnish Seal</strong> (5-Yr)
+                        </span>
+                        <span className="flex items-center gap-1">
+                          📦 <strong>Shatter-Free Crate</strong>
+                        </span>
+                        <span className="flex items-center gap-1">
+                          🔄 <strong>7-Day Easy Return</strong>
+                        </span>
+                      </div>
+
+                      {/* COD & Shipping Badge */}
+                      <div className="mt-2 flex items-center justify-between text-[10px] text-emerald-800">
+                        <span className="flex items-center gap-1 font-semibold">
+                          <Truck className="w-3 h-3 text-emerald-600" />
+                          COD Available Across India
+                        </span>
+                        <span className="text-slate-400">Dispatch in 24h</span>
                       </div>
                     </div>
 
                     {/* Pricing & Add To Cart Button */}
-                    <div className="mt-5 pt-3 border-t border-slate-100 flex items-center justify-between gap-3">
+                    <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between gap-3">
                       <div>
                         <div className="flex items-baseline gap-2">
                           <span className="text-lg font-bold text-slate-900 tabular-nums">
@@ -347,8 +379,13 @@ export const B2CStorefront: React.FC<B2CStorefrontProps> = ({
                           <span className="text-xs text-slate-400 line-through tabular-nums">
                             {formatCurrency(product.mrp, currency)}
                           </span>
+                          {discountPercent > 0 && (
+                            <span className="text-[10px] font-bold bg-amber-100 text-amber-900 px-1.5 py-0.2 rounded">
+                              Save {discountPercent}%
+                            </span>
+                          )}
                         </div>
-                        <span className="text-[10px] text-emerald-700 font-semibold block">
+                        <span className="text-[10px] text-slate-400 font-normal block">
                           Inclusive of all taxes
                         </span>
                       </div>
@@ -364,7 +401,7 @@ export const B2CStorefront: React.FC<B2CStorefrontProps> = ({
                           onClick={() => onAddToCart(product, 1)}
                           className="px-3.5 py-2 text-xs font-bold text-slate-950 bg-linear-to-r from-[#F5D061] to-[#D4AF37] hover:from-[#FFE285] hover:to-[#DFB73E] rounded-lg shadow-xs hover:shadow-sm transition-all cursor-pointer"
                         >
-                          Add to Cart
+                          Add to Bag
                         </button>
                       </div>
                     </div>

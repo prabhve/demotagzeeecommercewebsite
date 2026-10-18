@@ -7,6 +7,8 @@ import {
   calculateB2BRfq,
   validateGstin,
   estimatePincodeDelivery,
+  formatCurrency,
+  calculateBulkSheetSummary,
   AVAILABLE_PORTS,
 } from './pricing.ts';
 import type { Product, CartItem } from '../types/index.ts';
@@ -26,6 +28,8 @@ const mockProduct: Product = {
   pureBrassPurity: '99.8% Pure Virgin Brass',
   finish: 'Royal Mirror Brass Gold with Clear Antique Lacquer',
   weightKg: 2.4,
+  grossWeightGrams: 1850,
+  emotionalHook: 'The Conversation Starter of Your Living Room',
   dimensionsCm: { length: 32, width: 32, height: 12 },
   cbmPerUnit: 0.016,
   unitsPerMasterCarton: 10,
@@ -93,7 +97,7 @@ test('getB2BTierRate enforces MOQ 20 and tiers correctly', () => {
 });
 
 test('calculateB2BRfq computes weight, cartons, CBM, and duty drawback', () => {
-  const rfq = calculateB2BRfq(mockProduct, 100, 'mundra');
+  const rfq = calculateB2BRfq(mockProduct, 100, 'mundra', 'FOB');
   assert.equal(rfq.quantity, 100);
   assert.equal(rfq.unitPrice, 780);
   assert.equal(rfq.subtotalInr, 78000);
@@ -131,3 +135,33 @@ test('estimatePincodeDelivery estimates accurately for Moradabad and regions', (
   const invalidPin = estimatePincodeDelivery('123');
   assert.equal(invalidPin.deliverable, false);
 });
+
+test('formatCurrency formats INR, USD, and EUR correctly', () => {
+  const inr = formatCurrency(1000, 'INR');
+  assert.equal(inr, '₹1,000');
+
+  const usd = formatCurrency(8650, 'USD');
+  assert.equal(usd, '$100.00');
+
+  const eur = formatCurrency(9320, 'EUR');
+  assert.equal(eur, '€100.00');
+});
+
+test('calculateB2BRfq computes Incoterms, EUR subtotal, and Pallet counts', () => {
+  const rfqFob = calculateB2BRfq(mockProduct, 100, 'dubai', 'FOB');
+  assert.equal(rfqFob.incoterm, 'FOB');
+  assert.ok(rfqFob.subtotalEur > 0);
+  assert.equal(rfqFob.totalPallets, 1);
+
+  const rfqExWorks = calculateB2BRfq(mockProduct, 100, 'dubai', 'Ex-Works');
+  assert.ok(rfqExWorks.unitPrice < rfqFob.unitPrice); // Ex-Works discount
+});
+
+test('calculateBulkSheetSummary aggregates multi-SKU units, gross weight, and CBM', () => {
+  const summary = calculateBulkSheetSummary({ 'urli-01': 50 }, [mockProduct]);
+  assert.equal(summary.totalUnits, 50);
+  assert.ok(summary.totalInr > 0);
+  assert.ok(summary.totalGrossWeightKg > 0);
+  assert.equal(summary.itemSummaries.length, 1);
+});
+

@@ -1,4 +1,6 @@
-export type Currency = 'INR' | 'USD';
+export type Currency = 'INR' | 'USD' | 'EUR';
+
+export type Incoterm = 'Ex-Works' | 'FOB' | 'CIF';
 
 export interface Product {
   id: string;
@@ -8,13 +10,15 @@ export interface Product {
   mrp: number;
   offerPrice: number;
   b2bSlabs: {
-    tier1: { min: 20; max: 49; price: number; discountPercent: number };
-    tier2: { min: 50; max: 99; price: number; discountPercent: number };
-    tier3: { min: 100; max: 10000; price: number; discountPercent: number };
+    tier1: { min: number; max: number; price: number; discountPercent: number };
+    tier2: { min: number; max: number; price: number; discountPercent: number };
+    tier3: { min: number; max: number; price: number; discountPercent: number };
   };
-  pureBrassPurity: string; // e.g. "99.8% Pure Virgin Brass"
+  pureBrassPurity: string; // e.g. "Certified 99.4% Metallurgical Purity | Lab-Tested Anti-Tarnish Lacquer"
   finish: string;
   weightKg: number;
+  grossWeightGrams: number; // e.g. 1850 for 1,850g
+  emotionalHook: string; // e.g. "The Conversation Starter of Your Living Room"
   dimensionsCm: { length: number; width: number; height: number };
   cbmPerUnit: number;
   unitsPerMasterCarton: number;
@@ -55,11 +59,14 @@ export interface RfqCalculation {
   quantity: number;
   unitPrice: number;
   slabTier: string;
+  incoterm: Incoterm;
   subtotalInr: number;
   subtotalUsd: number;
+  subtotalEur: number;
   totalGrossWeightKg: number;
   totalCartons: number;
   totalCbm: number;
+  totalPallets: number;
   dutyDrawbackInr: number; // RoDTEP export drawback 3.5%
   estimatedSeaFreightInr: number;
   estimatedAirFreightInr: number;
@@ -142,4 +149,19 @@ export interface AgentInfo {
   avatarInitials: string;
   status: 'Online' | 'In Foundry Workshop' | 'Away';
   typicalResponseTime: string;
+}
+
+export interface B2BClientApplication {
+  id: string;
+  companyName: string;
+  contactPerson: string;
+  email: string;
+  phone: string;
+  country: string;
+  gstinOrTaxId: string;
+  annualVolumeEstimate: string;
+  appliedDate: string;
+  status: 'Pending Verification' | 'Approved' | 'Requires Documentation';
+  creditLimitInr: number;
+  certificateFileName: string;
 }

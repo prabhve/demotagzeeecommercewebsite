@@ -179,12 +179,15 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
               <h2 className="text-xl sm:text-2xl font-bold text-slate-900 font-serif mt-1">
                 {product.name}
               </h2>
+              <div className="text-xs text-[#9E7A1C] font-serif italic mt-0.5">
+                &ldquo;{product.emotionalHook}&rdquo;
+              </div>
               <div className="text-[11px] text-slate-400 mt-0.5">
                 SKU: <span className="font-mono">{product.sku}</span> · Artisan: {product.artisanName}
               </div>
 
               {/* Pricing Block */}
-              <div className="mt-4 p-3.5 bg-slate-50 rounded-xl border border-slate-200/80">
+              <div className="mt-3 p-3.5 bg-slate-50 rounded-xl border border-slate-200/80">
                 <div className="flex items-baseline gap-3">
                   <span className="text-2xl sm:text-3xl font-extrabold text-slate-900 tabular-nums">
                     {formatCurrency(product.offerPrice, currency)}
@@ -202,6 +205,31 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
                   <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
                   <span>Price inclusive of all taxes (18% GST). Free shipping over ₹2,499.</span>
                 </div>
+              </div>
+
+              {/* Golden 4-Badge Trust Strip */}
+              <div className="mt-3 grid grid-cols-2 gap-1.5 text-xs text-slate-700 bg-[#FFFDF7] p-2.5 rounded-xl border border-[#D4AF37]/30">
+                <span className="flex items-center gap-1.5">
+                  <span className="text-sm">🏆</span> <strong>100% Solid Brass</strong>
+                </span>
+                <span className="flex items-center gap-1.5">
+                  <span className="text-sm">🛡️</span> <strong>Anti-Tarnish Seal</strong> (5-Yr Glow)
+                </span>
+                <span className="flex items-center gap-1.5">
+                  <span className="text-sm">📦</span> <strong>Shatter-Free Crate</strong>
+                </span>
+                <span className="flex items-center gap-1.5">
+                  <span className="text-sm">🔄</span> <strong>7-Day Zero-Questions Return</strong>
+                </span>
+              </div>
+
+              {/* Gross Weight & Metallurgy Highlights */}
+              <div className="mt-3 p-2.5 bg-amber-50/60 rounded-xl border border-amber-200/60 text-xs flex items-center justify-between text-amber-950">
+                <span>Gross Weight: <strong className="font-bold">{product.grossWeightGrams.toLocaleString('en-IN')}g</strong></span>
+                <span>·</span>
+                <span>Alloy: <strong>100% Virgin Ingot</strong></span>
+                <span>·</span>
+                <span>HSN: <strong className="font-mono">7418</strong></span>
               </div>
 
               {/* Short Description & Bullet Features */}

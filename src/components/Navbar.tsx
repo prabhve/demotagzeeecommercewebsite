@@ -39,7 +39,7 @@ export const Navbar: React.FC<NavbarProps> = ({
         <div className="flex items-center gap-4 text-slate-300">
           <span className="flex items-center gap-1.5 text-[#D4AF37] font-medium tracking-wide">
             <Sparkles className="w-3.5 h-3.5 text-[#D4AF37]" />
-            Moradabad Peetal Nagri (GI Heritage)
+            Moradabad Artisanal Heritage • Worldwide Express Air &amp; Sea Cargo
           </span>
           <span className="hidden sm:inline text-slate-500">|</span>
           <span className="hidden sm:inline text-slate-300">
@@ -56,10 +56,10 @@ export const Navbar: React.FC<NavbarProps> = ({
             className="hidden md:flex items-center gap-1.5 text-xs text-slate-300 hover:text-[#D4AF37] transition-colors"
           >
             <Phone className="w-3 h-3 text-[#D4AF37]" />
-            <span>Atelier Line: +91 7248257721</span>
+            <span>Concierge: +91 7248257721</span>
           </a>
 
-          {/* Currency Selector */}
+          {/* Currency Selector (INR ₹ / USD $ / EUR €) */}
           <div className="flex items-center bg-slate-800 rounded p-0.5 border border-slate-700">
             <button
               onClick={() => setCurrency('INR')}
@@ -78,6 +78,15 @@ export const Navbar: React.FC<NavbarProps> = ({
               title="US Dollar"
             >
               USD $
+            </button>
+            <button
+              onClick={() => setCurrency('EUR')}
+              className={`px-2 py-0.5 rounded text-[11px] font-semibold transition-colors ${
+                currency === 'EUR' ? 'bg-[#D4AF37] text-slate-950 shadow-xs' : 'text-slate-300 hover:text-white'
+              }`}
+              title="Euro"
+            >
+              EUR €
             </button>
           </div>
         </div>
@@ -188,24 +197,38 @@ export const Navbar: React.FC<NavbarProps> = ({
 
         {/* Quick Nav & Cart Bag Action */}
         <div className="flex items-center gap-3">
-          <nav className="hidden lg:flex items-center gap-5 text-xs font-semibold text-slate-700">
+          <nav className="hidden lg:flex items-center gap-4 text-xs font-semibold text-slate-700">
             <button
               onClick={() => setActiveTab('b2c')}
-              className={`hover:text-[#9E7A1C] transition-colors ${activeTab === 'b2c' ? 'text-[#9E7A1C]' : ''}`}
+              className={`hover:text-[#9E7A1C] transition-colors cursor-pointer ${activeTab === 'b2c' ? 'text-[#9E7A1C]' : ''}`}
             >
-              Retail Catalog
+              Collections
+            </button>
+            <button
+              onClick={() => setActiveTab('b2c')}
+              className="hover:text-[#9E7A1C] transition-colors cursor-pointer"
+            >
+              Metal Artefacts
+            </button>
+            <button
+              onClick={() => setActiveTab('b2c')}
+              className="hover:text-[#9E7A1C] transition-colors cursor-pointer"
+            >
+              Home &amp; Kitchen
+            </button>
+            <button
+              onClick={() => setActiveTab('b2c')}
+              className="hover:text-[#9E7A1C] transition-colors cursor-pointer"
+            >
+              Garden Decor
             </button>
             <button
               onClick={() => setActiveTab('b2b')}
-              className={`hover:text-[#9E7A1C] transition-colors ${activeTab === 'b2b' ? 'text-[#9E7A1C]' : ''}`}
+              className={`hover:text-[#9E7A1C] transition-colors font-bold text-amber-800 bg-amber-50 px-2 py-0.5 rounded border border-amber-200/80 cursor-pointer ${
+                activeTab === 'b2b' ? 'bg-[#111827] text-[#D4AF37] border-[#D4AF37]' : ''
+              }`}
             >
-              Bulk RFQ Slabs
-            </button>
-            <button
-              onClick={() => setActiveTab('admin')}
-              className={`hover:text-[#9E7A1C] transition-colors ${activeTab === 'admin' ? 'text-[#9E7A1C]' : ''}`}
-            >
-              Order Management
+              B2B Wholesale Desk
             </button>
           </nav>
 

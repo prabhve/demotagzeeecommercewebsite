@@ -1,6 +1,7 @@
-import type { CartItem, Product, PortOption, RfqCalculation } from '../types/index.ts';
+import type { CartItem, Product, PortOption, RfqCalculation, Currency, Incoterm } from '../types/index.ts';
 
 export const USD_EXCHANGE_RATE = 86.5; // INR per USD
+export const EUR_EXCHANGE_RATE = 93.2; // INR per EUR
 export const FREE_SHIPPING_THRESHOLD_INR = 2499;
 export const STANDARD_SHIPPING_FEE_INR = 250;
 export const GST_RATE = 0.18; // 18% GST (CGST 9% + SGST 9% or IGST 18%)
@@ -60,12 +61,16 @@ export const AVAILABLE_PORTS: PortOption[] = [
 ];
 
 /**
- * Format currency amount cleanly
+ * Format currency amount cleanly (INR ₹, USD $, EUR €)
  */
-export function formatCurrency(amount: number, currency: 'INR' | 'USD'): string {
+export function formatCurrency(amount: number, currency: Currency): string {
   if (currency === 'USD') {
     const usdVal = amount / USD_EXCHANGE_RATE;
     return `$${usdVal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  }
+  if (currency === 'EUR') {
+    const eurVal = amount / EUR_EXCHANGE_RATE;
+    return `€${eurVal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   }
   return `₹${Math.round(amount).toLocaleString('en-IN')}`;
 }
@@ -154,22 +159,39 @@ export function getB2BTierRate(
 }
 
 /**
- * Calculate full B2B bulk RFQ metrics
+ * Calculate full B2B bulk RFQ metrics with Incoterms & Pallets
  */
 export function calculateB2BRfq(
   product: Product,
   quantity: number,
-  portId: string
+  portId: string,
+  incoterm: Incoterm = 'FOB'
 ): RfqCalculation {
   const q = Math.max(20, quantity);
   const tier = getB2BTierRate(product, q);
-  const subtotalInr = tier.unitPrice * q;
+
+  // Incoterm adjustment factor:
+  // Ex-Works: baseline factory price
+  // FOB: factory + export documentation, packaging & inland transport to port (+2.5%)
+  // CIF: FOB + international ocean freight & cargo insurance (+7.5% approx)
+  let unitPrice = tier.unitPrice;
+  if (incoterm === 'Ex-Works') {
+    unitPrice = Math.round(tier.unitPrice * 0.96); // 4% discount for ex-factory pickup
+  } else if (incoterm === 'CIF') {
+    unitPrice = Math.round(tier.unitPrice * 1.08); // freight + insurance incorporated
+  }
+
+  const subtotalInr = unitPrice * q;
   const subtotalUsd = +(subtotalInr / USD_EXCHANGE_RATE).toFixed(2);
+  const subtotalEur = +(subtotalInr / EUR_EXCHANGE_RATE).toFixed(2);
 
   const totalGrossWeightKg = +(product.weightKg * q * 1.08).toFixed(1); // 8% packaging tare allowance
   const unitsPerCarton = product.unitsPerMasterCarton || 10;
   const totalCartons = Math.ceil(q / unitsPerCarton);
   const totalCbm = +(product.cbmPerUnit * q).toFixed(3);
+
+  // 1 Euro-Pallet holds roughly 1.6 CBM / 500kg
+  const totalPallets = Math.max(1, Math.ceil(totalCbm / 1.6));
 
   const dutyDrawbackInr = Math.round(subtotalInr * RODTEP_EXPORT_DRAWBACK_RATE);
 
@@ -181,17 +203,81 @@ export function calculateB2BRfq(
   return {
     product,
     quantity: q,
-    unitPrice: tier.unitPrice,
+    unitPrice,
     slabTier: tier.tierLabel,
+    incoterm,
     subtotalInr,
     subtotalUsd,
+    subtotalEur,
     totalGrossWeightKg,
     totalCartons,
     totalCbm,
+    totalPallets,
     dutyDrawbackInr,
     estimatedSeaFreightInr,
     estimatedAirFreightInr,
     port,
+  };
+}
+
+/**
+ * Quick Bulk Order Sheet Aggregator
+ */
+export function calculateBulkSheetSummary(
+  quantities: Record<string, number>,
+  products: Product[]
+): {
+  totalUnits: number;
+  totalGrossWeightKg: number;
+  totalCbm: number;
+  totalPallets: number;
+  totalInr: number;
+  itemSummaries: Array<{
+    product: Product;
+    quantity: number;
+    unitPrice: number;
+    subtotal: number;
+  }>;
+} {
+  let totalUnits = 0;
+  let totalGrossWeightKg = 0;
+  let totalCbm = 0;
+  let totalInr = 0;
+  const itemSummaries: Array<{
+    product: Product;
+    quantity: number;
+    unitPrice: number;
+    subtotal: number;
+  }> = [];
+
+  products.forEach((prod) => {
+    const qty = quantities[prod.id] || 0;
+    if (qty > 0) {
+      const tier = getB2BTierRate(prod, qty);
+      const sub = tier.unitPrice * qty;
+      totalUnits += qty;
+      totalInr += sub;
+      totalGrossWeightKg += prod.weightKg * qty * 1.08;
+      totalCbm += prod.cbmPerUnit * qty;
+
+      itemSummaries.push({
+        product: prod,
+        quantity: qty,
+        unitPrice: tier.unitPrice,
+        subtotal: sub,
+      });
+    }
+  });
+
+  const totalPallets = totalCbm > 0 ? Math.max(1, Math.ceil(totalCbm / 1.6)) : 0;
+
+  return {
+    totalUnits,
+    totalGrossWeightKg: +totalGrossWeightKg.toFixed(1),
+    totalCbm: +totalCbm.toFixed(3),
+    totalPallets,
+    totalInr,
+    itemSummaries,
   };
 }
 
@@ -220,7 +306,6 @@ const GST_STATE_MAP: Record<string, string> = {
 
 /**
  * Validate 15-character Indian GSTIN
- * Format: 2 digits (State Code) + 5 letters (PAN) + 4 digits + 1 letter + 1 digit/letter + Z + 1 check character
  */
 export function validateGstin(gstinInput: string): {
   isValid: boolean;
@@ -242,7 +327,7 @@ export function validateGstin(gstinInput: string): {
   }
 
   const stateCode = gstin.substring(0, 2);
-  const stateName = GST_STATE_MAP[stateCode] || 'Registered Indian State';
+  const stateName = GST_STATE_MAP[stateCode] || 'Other State / Union Territory';
 
   return {
     isValid: true,
@@ -252,67 +337,74 @@ export function validateGstin(gstinInput: string): {
 }
 
 /**
- * Estimate delivery based on Indian Pincode
+ * Pincode delivery estimator
  */
-export function estimatePincodeDelivery(pincode: string): {
+export function estimatePincodeDelivery(pincodeInput: string): {
   deliverable: boolean;
   days: number;
   deliveryDate: string;
   hub: string;
-  freeEligible: boolean;
   error?: string;
 } {
-  const cleanPin = pincode.trim();
-  if (!/^[1-9][0-9]{5}$/.test(cleanPin)) {
+  const clean = pincodeInput.trim();
+  if (!/^\d{6}$/.test(clean)) {
     return {
       deliverable: false,
       days: 0,
       deliveryDate: '',
       hub: '',
-      freeEligible: false,
-      error: 'Enter a valid 6-digit Indian Postal Pincode',
+      error: 'Enter a valid 6-digit Indian postal pincode (e.g. 244001, 110001, 400001)',
     };
   }
 
-  const firstDigit = cleanPin.charAt(0);
-  let days = 4;
-  let hub = 'North India Regional Hub (Delhi-NCR)';
-
-  if (cleanPin.startsWith('244')) {
-    // Moradabad Local
-    days = 1;
-    hub = 'TAG ZEE Moradabad Atelier (Direct Same-Day / Next-Day Dispatch)';
-  } else if (firstDigit === '1' || firstDigit === '2') {
-    // Delhi, UP, Punjab, Haryana, HP
-    days = 2;
-    hub = 'North India Express Transit Hub (Delhi)';
-  } else if (firstDigit === '3' || firstDigit === '4') {
-    // West: Maharashtra, Gujarat, Rajasthan
-    days = 3;
-    hub = 'Western Logistics Hub (Bhiwandi / Mumbai)';
-  } else if (firstDigit === '5' || firstDigit === '6') {
-    // South: Karnataka, TN, Kerala, Telangana, AP
-    days = 4;
-    hub = 'Southern Air Hub (Bengaluru / Chennai)';
-  } else {
-    // East / North-East
-    days = 5;
-    hub = 'Eastern Transit Gateway (Kolkata)';
+  // Moradabad local (244xxx)
+  if (clean.startsWith('244')) {
+    const d = new Date();
+    d.setDate(d.getDate() + 1);
+    return {
+      deliverable: true,
+      days: 1,
+      deliveryDate: d.toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short' }),
+      hub: 'TAG ZEE Moradabad Atelier (Direct Same-Day / Next-Day Dispatch)',
+    };
   }
 
-  const targetDate = new Date();
-  targetDate.setDate(targetDate.getDate() + days);
-  const deliveryDate = targetDate.toLocaleDateString('en-IN', {
-    weekday: 'short',
-    month: 'short',
-    day: 'numeric',
-  });
+  // Delhi NCR / UP / Haryana (11xxxx, 20xxxx, 12xxxx)
+  if (clean.startsWith('11') || clean.startsWith('20') || clean.startsWith('12')) {
+    const d = new Date();
+    d.setDate(d.getDate() + 2);
+    return {
+      deliverable: true,
+      days: 2,
+      deliveryDate: d.toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short' }),
+      hub: 'Delhivery NCR Air Cargo Hub',
+    };
+  }
 
+  // Major Metros (Mumbai 400xxx, Bangalore 560xxx, Kolkata 700xxx, Chennai 600xxx)
+  if (
+    clean.startsWith('40') ||
+    clean.startsWith('56') ||
+    clean.startsWith('70') ||
+    clean.startsWith('60')
+  ) {
+    const d = new Date();
+    d.setDate(d.getDate() + 3);
+    return {
+      deliverable: true,
+      days: 3,
+      deliveryDate: d.toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short' }),
+      hub: 'Blue Dart Express Super-Hub',
+    };
+  }
+
+  // Rest of India
+  const d = new Date();
+  d.setDate(d.getDate() + 4);
   return {
     deliverable: true,
-    days,
-    deliveryDate,
-    hub,
-    freeEligible: true,
+    days: 4,
+    deliveryDate: d.toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short' }),
+    hub: 'National Air Express Logistics Network',
   };
 }
